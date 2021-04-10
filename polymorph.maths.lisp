@@ -51,7 +51,10 @@
 
 
 
-(defpolymorph (= :inline t) ((first array) (second array)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first (and array (not vector)))
+                             (second (and array (not vector))))
+  (values boolean &optional)
+
   (let ((s1 (array-total-size first))
         (s2 (array-total-size second)))
     (and (cl:= s1 s2)
@@ -59,19 +62,21 @@
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
 
-(defpolymorph-compiler-macro = (array array) (first second &environment env)
+(defpolymorph-compiler-macro = ((and array (not vector)) (and array (not vector))) (first second &environment env)
   (let* ((type1 (%form-type first env))
          (elt1  (cm:array-type-element-type type1))
          (dim1  (cm:array-type-dimensions type1))
          (type2 (%form-type second env))
          (elt2  (cm:array-type-element-type type2))
          (dim2  (cm:array-type-dimensions type2))
-         (size1 (if (every (lambda (x) (constantp x env)) dim1)
-                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim1)
-                    `(array-total-size ,first)))
-         (size2 (if (every (lambda (x) (constantp x env)) dim2)
-                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim2)
-                    `(array-total-size ,second)))
+         (size1 (cond
+                    ((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                     (reduce (lambda (a b) `(cl:* ,a ,b)) dim1))
+                    (t `(array-total-size ,first))))
+         (size2 (cond
+                    ((and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
+                     (reduce (lambda (a b) `(cl:* ,a ,b)) dim2))
+                    (t `(array-total-size ,second))))
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
