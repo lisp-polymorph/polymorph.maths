@@ -66,19 +66,56 @@
          (type2 (%form-type second env))
          (elt2  (cm:array-type-element-type type2))
          (dim2  (cm:array-type-dimensions type2))
+         (size1 (if (every (lambda (x) (constantp x env)) dim1)
+                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim1)
+                    `(array-total-size ,first)))
+         (size2 (if (every (lambda (x) (constantp x env)) dim2)
+                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim2)
+                    `(array-total-size ,second)))
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
-    (%check-container-elem-applicable elt1 elt2 #'=)               ;;TODO can it bug out on arrays of arrays?
+    (%check-container-elem-applicable elt1 elt2 #'=)
     (unless (equalp dim1 dim2)
       (warn "Arrays dimensions are not known to be compatbile"))
     (once-only (first second)
-      `(let ((,s1 (array-total-size ,first))
-             (,s2 (array-total-size ,second)))
+      `(let ((,s1 ,size1)
+             (,s2 ,size2))
          (and (cl:= ,s1 ,s2)
             (loop :for ,i :below ,s1
                   :always (= (the ,elt1 (row-major-aref ,first ,i))
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
+
+
+
+(defpolymorph (= :inline t) ((first vector) (second vector)) (values boolean &optional)
+  (let ((s1 (length first))
+        (s2 (length second)))
+    (and (cl:= s1 s2)
+       (cl:= (fill-pointer first) (fill-pointer second))
+       (loop :for i :below s1
+             :always (= (aref first i)
+                        (aref second i))))))
+
+
+(defpolymorph-compiler-macro = (vector vector) (first second &environment env)
+  (let* ((type1 (%form-type first env))
+         (elt1  (cm:array-type-element-type type1))
+         (type2 (%form-type second env))
+         (elt2  (cm:array-type-element-type type2))
+         (s1 (gensym))
+         (s2 (gensym))
+         (i (gensym)))
+    (%check-container-elem-applicable elt1 elt2 #'=)
+    (once-only (first second)
+      `(let ((,s1 (length ,first))
+             (,s2 (length ,second)))
+         (and (cl:= ,s1 ,s2)
+            (cl:= (fill-pointer ,first) (fill-pointer ,second))
+            (loop :for ,i :below ,s1
+                  :always (= (the ,elt1 (aref ,first ,i))
+                             (the ,elt2 (aref ,second ,i)))))))))
+
 
 
 (defpolymorph = ((first hash-table) (second hash-table)) (values boolean &optional)
