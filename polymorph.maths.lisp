@@ -31,17 +31,17 @@
 (define-polymorphic-function /= (first second) :overwrite t
   :documentation "Return T if all of its arguments are , NIL otherwise.")
 
-(defpolymorph = ((first number) (second number)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first number) (second number)) (values boolean &optional)
   (cl:= first second))
 
 
-(defpolymorph = ((first symbol) (second symbol)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first symbol) (second symbol)) (values boolean &optional)
   (eql first second))
 
-(defpolymorph = ((first character) (second character)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first character) (second character)) (values boolean &optional)
   (char= first second))
 
-(defpolymorph = ((first string) (second string)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first string) (second string)) (values boolean &optional)
   (string= first second))
 
 
@@ -90,7 +90,6 @@
             (loop :for ,i :below ,s1
                   :always (= (the ,elt1 (row-major-aref ,first ,i))
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
-
 
 
 (defpolymorph (= :inline t) ((first vector) (second vector)) (values boolean &optional)
