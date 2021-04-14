@@ -246,8 +246,8 @@
   (labels ((gen- (ls done)
              (if ls
                  (gen- (cdr ls) `(- ,done ,(car ls)))
-                 done)))))
-
+                 done)))
+    (the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))))
 
 
 (define-polymorphic-function * (&rest xs) :overwrite t)
@@ -290,3 +290,18 @@
                  (gen/ (cdr ls) `(/ ,done ,(car ls)))
                  done)))
     `(the ,(cm:form-type first) ,(gen/ xs `(/ (/ ,first ,second) ,third)))))
+
+
+
+(deftype has-binops (&rest functions)
+  (let ((intersec))
+    (loop :for fn :in functions
+          :for lists := (mapcar #'adhoc-polymorphic-functions::polymorph-type-list
+                                (adhoc-polymorphic-functions::polymorphic-function-polymorphs
+                                 (fdefinition fn)))
+          :for res := (loop :for list :in lists
+                            :when (and (= 2 (length list))
+                                     (eql (first list) (second list)))
+                            :collect (first list))
+          :do (setf intersec (if intersec (intersection res intersec) res)))
+    `(or ,@intersec)))
