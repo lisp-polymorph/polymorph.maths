@@ -392,6 +392,9 @@
 
 
 
+
+
+#||
 (deftype has-binops (&rest functions)
   (let ((intersec))
     (loop :for fn :in functions
@@ -404,3 +407,4 @@
                             :collect (first list))
           :do (setf intersec (if intersec (intersection res intersec) res)))
     `(or ,@intersec)))
+||#
