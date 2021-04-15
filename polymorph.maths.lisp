@@ -25,11 +25,20 @@
 
 
 ;; Equality
-(define-polymorphic-function = (first second) :overwrite t
+(define-polymorphic-function = (object &rest objects) :overwrite t
   :documentation "Return T if all of its arguments are , NIL otherwise.")
 
-(define-polymorphic-function /= (first second) :overwrite t
+(define-polymorphic-function /= (object &rest objects) :overwrite t
   :documentation "Return T if all of its arguments are , NIL otherwise.")
+
+(defpolymorph (= :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
+
+
+(defpolymorph (/= :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
 
 (defpolymorph (= :inline t) ((first number) (second number)) (values boolean &optional)
   (cl:= first second))
@@ -51,8 +60,8 @@
 
 
 
-(defpolymorph (= :inline t) ((first (and array (not vector)))
-                             (second (and array (not vector))))
+(defpolymorph (= :inline t) ((first array)
+                             (second array))
   (values boolean &optional)
 
   (let ((s1 (array-total-size first))
@@ -62,7 +71,7 @@
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
 
-(defpolymorph-compiler-macro = ((and array (not vector)) (and array (not vector))) (first second &environment env)
+(defpolymorph-compiler-macro = (array array) (first second &environment env)
   (let* ((type1 (%form-type first env))
          (elt1  (cm:array-type-element-type type1))
          (dim1  (cm:array-type-dimensions type1))
@@ -92,7 +101,7 @@
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
 
 
-(defpolymorph (= :inline t) ((first vector) (second vector)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first (and vector (not simple-array))) (second (and vector (not simple-array)))) (values boolean &optional)
   (let ((s1 (length first))
         (s2 (length second)))
     (and (cl:= s1 s2)
@@ -102,7 +111,7 @@
                         (aref second i))))))
 
 
-(defpolymorph-compiler-macro = (vector vector) (first second &environment env)
+(defpolymorph-compiler-macro = ((and vector (not simple-array)) (and vector (not simple-array))) (first second &environment env)
   (let* ((type1 (%form-type first env))
          (elt1  (cm:array-type-element-type type1))
          (type2 (%form-type second env))
@@ -155,25 +164,57 @@
              :collect `(= (the ,type (slot-value ,first ',name))
                           (the ,type (slot-value ,second ',name)))))))
 
+(defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (cl:reduce (lambda (a b) (and a (= b first)))
+             args :initial-value (and (= first second) (= second third))))
 
+(defpolymorph-compiler-macro = (t t t &rest) (first second third &rest args)
+  (labels ((gen= (ls done)
+             (if ls
+                 (gen= (cdr ls) `(and ,done (= ,first ,(car ls))))
+                 done)))
+    (gen+ xs `(and (= ,first ,second) (= ,second ,third)))))
+
+(defpolymorph (/= :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
 
 (defpolymorph (/= :inline t) ((first t) (second t)) (values boolean &optional)
   (not (= first second)))
 
+(defpolymorph (/= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (not (cl:reduce (lambda (a b) (and a (= b first)))
+                args :initial-value (and (= first second) (= second third)))))
 
-
+(defpolymorph-compiler-macro /= (t t t &rest) (first second third &rest args)
+  `(not (= ,first ,second ,third ,@args)))
 
 
 
 ;; Inequality
-(define-polymorphic-function < (first second) :overwrite t
+(define-polymorphic-function < (object &rest objects) :overwrite t
   :documentation "Return T if its arguments are in strictly increasing order, NIL otherwise.")
-(define-polymorphic-function <= (first second) :overwrite t
+(define-polymorphic-function <= (object &rest objects) :overwrite t
   :documentation "Return T if arguments are in strictly non-decreasing order, NIL otherwise.")
-(define-polymorphic-function > (first second) :overwrite t
+(define-polymorphic-function > (object &rest objects) :overwrite t
   :documentation "Return T if its arguments are in strictly increasing order, NIL otherwise.")
-(define-polymorphic-function >= (first second) :overwrite t
+(define-polymorphic-function >= (object &rest objects) :overwrite t
   :documentation "Return T if arguments are in strictly non-decreasing order, NIL otherwise.")
+
+(defpolymorph (> :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
+(defpolymorph (>= :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
+(defpolymorph (< :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
+(defpolymorph (<= :inline t) ((first t)) (eql t)
+  (declare (ignorable first))
+  t)
+
+
 
 (defpolymorph < ((first real) (second real)) (values boolean &optional)
               (cL:< first second))
@@ -193,12 +234,70 @@
 (defpolymorph <= ((first string) (second string)) (values boolean &optional)
               (string<= first second))
 
+(defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (flet ((%%< (a b)
+           (when (< a b) b)))
+   (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
+
+(defpolymorph-compiler-macro < (t t t &rest) (first second third &rest args)
+  (labels ((gen< (ls res)
+             (if (cdr ls)
+                 (gen< (cdr ls) (cons `(< ,(car ls) ,(cadr ls)) res))
+                 (reverse res))))
+    (once-only (first second third)
+      (print
+       `(not (not (and (< ,first ,second) (< ,second ,third) ,@(gen< (cons third args) nil))))))))
+
+(defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (flet ((%%<= (a b)
+           (when (<= a b) b)))
+   (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
+
+(defpolymorph-compiler-macro <= (t t t &rest) (first second third &rest args)
+  (labels ((gen<= (ls res)
+             (if (cdr ls)
+                 (gen<= (cdr ls) (cons `(<= ,(car ls) ,(cadr ls)) res))
+                 (reverse res))))
+    (once-only (first second third)
+      (print
+       `(not (not (and (<= ,first ,second) (<= ,second ,third) ,@(gen<= (cons third args) nil))))))))
+
 
 
 (defpolymorph > ((first t) (second t)) (values boolean &optional)
   (not (<= first second)))
 (defpolymorph >= ((first t) (second t)) (values boolean &optional)
   (not (< first second)))
+
+(defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (flet ((%%> (a b)
+           (when (> a b) b)))
+   (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
+
+(defpolymorph-compiler-macro > (t t t &rest) (first second third &rest args)
+  (labels ((gen> (ls res)
+             (if (cdr ls)
+                 (gen> (cdr ls) (cons `(> ,(car ls) ,(cadr ls)) res))
+                 (reverse res))))
+    (once-only (first second third)
+      (print
+       `(not (not (and (> ,first ,second) (> ,second ,third) ,@(gen> (cons third args) nil))))))))
+
+(defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (flet ((%%>= (a b)
+           (when (>= a b) b)))
+   (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
+
+(defpolymorph-compiler-macro >= (t t t &rest) (first second third &rest args)
+  (labels ((gen>= (ls res)
+             (if (cdr ls)
+                 (gen>= (cdr ls) (cons `(>= ,(car ls) ,(cadr ls)) res))
+                 (reverse res))))
+    (once-only (first second third)
+      (print
+       `(not (not (and (>= ,first ,second) (>= ,second ,third) ,@(gen>= (cons third args) nil))))))))
+
+
 
 
 ;; Arithmetics
@@ -247,7 +346,7 @@
              (if ls
                  (gen- (cdr ls) `(- ,done ,(car ls)))
                  done)))
-    (the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))))
+    `(the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))))
 
 
 (define-polymorphic-function * (&rest xs) :overwrite t)
