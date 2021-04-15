@@ -237,7 +237,7 @@
 (defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (flet ((%%< (a b)
            (when (< a b) b)))
-   (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
+    (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
 
 (defpolymorph-compiler-macro < (t t t &rest) (first second third &rest args)
   (labels ((gen< (ls res)
@@ -245,13 +245,12 @@
                  (gen< (cdr ls) (cons `(< ,(car ls) ,(cadr ls)) res))
                  (reverse res))))
     (once-only (first second third)
-      (print
-       `(not (not (and (< ,first ,second) (< ,second ,third) ,@(gen< (cons third args) nil))))))))
+      `(not (not (and (< ,first ,second) (< ,second ,third) ,@(gen< (cons third args) nil)))))))
 
 (defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (flet ((%%<= (a b)
            (when (<= a b) b)))
-   (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
+    (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
 
 (defpolymorph-compiler-macro <= (t t t &rest) (first second third &rest args)
   (labels ((gen<= (ls res)
@@ -259,8 +258,7 @@
                  (gen<= (cdr ls) (cons `(<= ,(car ls) ,(cadr ls)) res))
                  (reverse res))))
     (once-only (first second third)
-      (print
-       `(not (not (and (<= ,first ,second) (<= ,second ,third) ,@(gen<= (cons third args) nil))))))))
+      `(not (not (and (<= ,first ,second) (<= ,second ,third) ,@(gen<= (cons third args) nil)))))))
 
 
 
@@ -272,7 +270,7 @@
 (defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (flet ((%%> (a b)
            (when (> a b) b)))
-   (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
+    (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
 
 (defpolymorph-compiler-macro > (t t t &rest) (first second third &rest args)
   (labels ((gen> (ls res)
@@ -280,13 +278,12 @@
                  (gen> (cdr ls) (cons `(> ,(car ls) ,(cadr ls)) res))
                  (reverse res))))
     (once-only (first second third)
-      (print
-       `(not (not (and (> ,first ,second) (> ,second ,third) ,@(gen> (cons third args) nil))))))))
+      `(not (not (and (> ,first ,second) (> ,second ,third) ,@(gen> (cons third args) nil)))))))
 
 (defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (flet ((%%>= (a b)
            (when (>= a b) b)))
-   (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
+    (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
 
 (defpolymorph-compiler-macro >= (t t t &rest) (first second third &rest args)
   (labels ((gen>= (ls res)
@@ -294,8 +291,7 @@
                  (gen>= (cdr ls) (cons `(>= ,(car ls) ,(cadr ls)) res))
                  (reverse res))))
     (once-only (first second third)
-      (print
-       `(not (not (and (>= ,first ,second) (>= ,second ,third) ,@(gen>= (cons third args) nil))))))))
+      `(not (not (and (>= ,first ,second) (>= ,second ,third) ,@(gen>= (cons third args) nil)))))))
 
 
 
