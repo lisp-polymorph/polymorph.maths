@@ -19,8 +19,7 @@
                                  (subtypep gsnd esnd env))))))
       (error "Types ~s and ~s are incompatbile in terms of function ~s~%"
                elem-type1 elem-type2 fn))))
-
-
+;;TODO This one ^ is BAD, so i gotta rewrite it. Don't use anywhere for now
 
 
 
@@ -89,7 +88,8 @@
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
-    (%check-container-elem-applicable elt1 elt2 #'=)
+    (print env)
+    ;(%check-container-elem-applicable elt1 elt2 #'=)
     (unless (equalp dim1 dim2)
       (warn "Arrays dimensions are not known to be compatbile"))
     (once-only (first second)
@@ -101,7 +101,9 @@
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
 
 
-(defpolymorph (= :inline t) ((first (and vector (not simple-array))) (second (and vector (not simple-array)))) (values boolean &optional)
+(defpolymorph (= :inline t) ((first (and vector (not simple-array)))
+                             (second (and vector (not simple-array))))
+    (values boolean &optional)
   (let ((s1 (length first))
         (s2 (length second)))
     (and (cl:= s1 s2)
@@ -111,7 +113,9 @@
                         (aref second i))))))
 
 
-(defpolymorph-compiler-macro = ((and vector (not simple-array)) (and vector (not simple-array))) (first second &environment env)
+(defpolymorph-compiler-macro = ((and vector (not simple-array))
+                                (and vector (not simple-array)))
+    (first second &environment env)
   (let* ((type1 (%form-type first env))
          (elt1  (cm:array-type-element-type type1))
          (type2 (%form-type second env))
@@ -119,7 +123,7 @@
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
-    (%check-container-elem-applicable elt1 elt2 #'=)
+    ;(%check-container-elem-applicable elt1 elt2 #'=)
     (once-only (first second)
       `(let ((,s1 (length ,first))
              (,s2 (length ,second)))
@@ -152,7 +156,8 @@
             :for name := (mop:slot-definition-name slot)
             :always (= (slot-value first name) (slot-value second name))))))
 
-(defpolymorph-compiler-macro = (structure-object structure-object) (first second &environment env)
+(defpolymorph-compiler-macro = (structure-object structure-object)
+    (first second &environment env)
   (let* ((type1        (%form-type first env))
          (type2        (%form-type second env)))
     (unless (eql type1 type2)
@@ -168,12 +173,40 @@
   (cl:reduce (lambda (a b) (and a (= b first)))
              args :initial-value (and (= first second) (= second third))))
 
-(defpolymorph-compiler-macro = (t t t &rest) (first second third &rest args)
-  (labels ((gen= (ls done)
-             (if ls
-                 (gen= (cdr ls) `(and ,done (= ,first ,(car ls))))
-                 done)))
-    (gen+ xs `(and (= ,first ,second) (= ,second ,third)))))
+
+
+(defpolymorph-compiler-macro = (t t t &rest) (&whole form first second third &rest args
+                                                     &environment env)
+
+  (if (constantp (length args) env)
+      (let ((types (mapcar (lambda (x) (%form-type x env))
+                           (cons first (cons second (cons third args))))))
+        (if (every (lambda (typename) (subtypep typename 'number env)) types)
+            `(cl:= ,first ,second ,third ,@args)
+            (labels ((rec (ls res)
+                       (if (cdr ls)
+                           (rec (cdr ls) (cons `(= ,(car ls) ,(cadr ls))
+                                               res))
+                           (reverse res))))
+              (let ((names (mapcar (lambda(x) (gensym (string x))) args)))
+                (once-only (first second third)
+                  `(let ,(loop :for name :in names
+                               :for arg :in args
+                               :collect `(,name ,arg))
+                     (declare ,@(loop :for name :in names
+                                      :for type :in (cdddr types)
+                                      :collect `(type ,type ,name))
+                              (type ,(first types) ,first)
+                              (type ,(second types) ,second)
+                              (type ,(third types) ,third))
+                     (not
+                      (not
+                       (and (= ,first ,second)
+                          (= ,second ,third)
+                          ,@(rec (cons third names) nil))))))))))
+      form))
+
+
 
 (defpolymorph (/= :inline t) ((first t)) (eql t)
   (declare (ignorable first))
@@ -186,9 +219,11 @@
   (not (cl:reduce (lambda (a b) (and a (= b first)))
                 args :initial-value (and (= first second) (= second third)))))
 
-(defpolymorph-compiler-macro /= (t t t &rest) (first second third &rest args)
-  `(not (= ,first ,second ,third ,@args)))
-
+(defpolymorph-compiler-macro /= (t t t &rest) (&whole form first second third &rest args
+                                                      &environment env)
+  (if (constantp (length args) env)
+      `(not (= ,first ,second ,third ,@args))
+      form))
 
 
 ;; Inequality
@@ -234,32 +269,83 @@
 (defpolymorph <= ((first string) (second string)) (values boolean &optional)
               (string<= first second))
 
-(defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+(defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args)
+    (values boolean &optional)
   (flet ((%%< (a b)
            (when (< a b) b)))
     (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
 
-(defpolymorph-compiler-macro < (t t t &rest) (first second third &rest args)
-  (labels ((gen< (ls res)
-             (if (cdr ls)
-                 (gen< (cdr ls) (cons `(< ,(car ls) ,(cadr ls)) res))
-                 (reverse res))))
-    (once-only (first second third)
-      `(not (not (and (< ,first ,second) (< ,second ,third) ,@(gen< (cons third args) nil)))))))
 
-(defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+
+(defpolymorph-compiler-macro < (t t t &rest) (&whole form first second third &rest args
+                                                     &environment env)
+
+  (if (constantp (length args) env)
+      (let ((types (mapcar (lambda (x) (%form-type x env))
+                           (cons first (cons second (cons third args))))))
+        (if (every (lambda (typename) (subtypep typename 'number env)) types)
+            `(cl:< ,first ,second ,third ,@args)
+            (labels ((rec (ls res)
+                       (if (cdr ls)
+                           (rec (cdr ls) (cons `(< ,(car ls) ,(cadr ls))
+                                               res))
+                           (reverse res))))
+              (let ((names (mapcar (lambda(x) (gensym (string x))) args)))
+                (once-only (first second third)
+                  `(let ,(loop :for name :in names
+                               :for arg :in args
+                               :collect `(,name ,arg))
+                     (declare ,@(loop :for name :in names
+                                      :for type :in (cdddr types)
+                                      :collect `(type ,type ,name))
+                              (type ,(first types) ,first)
+                              (type ,(second types) ,second)
+                              (type ,(third types) ,third))
+                     (not
+                      (not
+                       (and (< ,first ,second)
+                          (< ,second ,third)
+                          ,@(rec (cons third names) nil))))))))))
+      form))
+
+
+
+(defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args)
+    (values boolean &optional)
   (flet ((%%<= (a b)
            (when (<= a b) b)))
     (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
 
-(defpolymorph-compiler-macro <= (t t t &rest) (first second third &rest args)
-  (labels ((gen<= (ls res)
-             (if (cdr ls)
-                 (gen<= (cdr ls) (cons `(<= ,(car ls) ,(cadr ls)) res))
-                 (reverse res))))
-    (once-only (first second third)
-      `(not (not (and (<= ,first ,second) (<= ,second ,third) ,@(gen<= (cons third args) nil)))))))
+(defpolymorph-compiler-macro <= (t t t &rest) (&whole form first second third &rest args
+                                                     &environment env)
 
+  (if (constantp (length args) env)
+      (let ((types (mapcar (lambda (x) (%form-type x env))
+                           (cons first (cons second (cons third args))))))
+        (if (every (lambda (typename) (subtypep typename 'number env)) types)
+            `(cl:<= ,first ,second ,third ,@args)
+            (labels ((rec (ls res)
+                       (if (cdr ls)
+                           (rec (cdr ls) (cons `(<= ,(car ls) ,(cadr ls))
+                                               res))
+                           (reverse res))))
+              (let ((names (mapcar (lambda(x) (gensym (string x))) args)))
+                (once-only (first second third)
+                  `(let ,(loop :for name :in names
+                               :for arg :in args
+                               :collect `(,name ,arg))
+                     (declare ,@(loop :for name :in names
+                                      :for type :in (cdddr types)
+                                      :collect `(type ,type ,name))
+                              (type ,(first types) ,first)
+                              (type ,(second types) ,second)
+                              (type ,(third types) ,third))
+                     (not
+                      (not
+                       (and (<= ,first ,second)
+                          (<= ,second ,third)
+                          ,@(rec (cons third names) nil))))))))))
+      form))
 
 
 (defpolymorph > ((first t) (second t)) (values boolean &optional)
@@ -267,32 +353,82 @@
 (defpolymorph >= ((first t) (second t)) (values boolean &optional)
   (not (< first second)))
 
-(defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+(defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args)
+    (values boolean &optional)
   (flet ((%%> (a b)
            (when (> a b) b)))
     (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
 
-(defpolymorph-compiler-macro > (t t t &rest) (first second third &rest args)
-  (labels ((gen> (ls res)
-             (if (cdr ls)
-                 (gen> (cdr ls) (cons `(> ,(car ls) ,(cadr ls)) res))
-                 (reverse res))))
-    (once-only (first second third)
-      `(not (not (and (> ,first ,second) (> ,second ,third) ,@(gen> (cons third args) nil)))))))
+(defpolymorph-compiler-macro > (t t t &rest) (&whole form first second third &rest args
+                                                     &environment env)
 
-(defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  (if (constantp (length args) env)
+      (let ((types (mapcar (lambda (x) (%form-type x env))
+                           (cons first (cons second (cons third args))))))
+        (if (every (lambda (typename) (subtypep typename 'number env)) types)
+            `(cl:<= ,first ,second ,third ,@args)
+            (labels ((rec (ls res)
+                       (if (cdr ls)
+                           (rec (cdr ls) (cons `(> ,(car ls) ,(cadr ls))
+                                               res))
+                           (reverse res))))
+              (let ((names (mapcar (lambda(x) (gensym (string x))) args)))
+                (once-only (first second third)
+                  `(let ,(loop :for name :in names
+                               :for arg :in args
+                               :collect `(,name ,arg))
+                     (declare ,@(loop :for name :in names
+                                      :for type :in (cdddr types)
+                                      :collect `(type ,type ,name))
+                              (type ,(first types) ,first)
+                              (type ,(second types) ,second)
+                              (type ,(third types) ,third))
+                     (not
+                      (not
+                       (and (> ,first ,second)
+                          (> ,second ,third)
+                          ,@(rec (cons third names) nil))))))))))
+      form))
+
+
+
+(defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args)
+    (values boolean &optional)
   (flet ((%%>= (a b)
            (when (>= a b) b)))
     (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
 
-(defpolymorph-compiler-macro >= (t t t &rest) (first second third &rest args)
-  (labels ((gen>= (ls res)
-             (if (cdr ls)
-                 (gen>= (cdr ls) (cons `(>= ,(car ls) ,(cadr ls)) res))
-                 (reverse res))))
-    (once-only (first second third)
-      `(not (not (and (>= ,first ,second) (>= ,second ,third) ,@(gen>= (cons third args) nil)))))))
 
+(defpolymorph-compiler-macro >= (t t t &rest) (&whole form first second third &rest args
+                                                     &environment env)
+
+  (if (constantp (length args) env)
+      (let ((types (mapcar (lambda (x) (%form-type x env))
+                           (cons first (cons second (cons third args))))))
+        (if (every (lambda (typename) (subtypep typename 'number env)) types)
+            `(cl:<= ,first ,second ,third ,@args)
+            (labels ((rec (ls res)
+                       (if (cdr ls)
+                           (rec (cdr ls) (cons `(>= ,(car ls) ,(cadr ls))
+                                               res))
+                           (reverse res))))
+              (let ((names (mapcar (lambda(x) (gensym (string x))) args)))
+                (once-only (first second third)
+                  `(let ,(loop :for name :in names
+                               :for arg :in args
+                               :collect `(,name ,arg))
+                     (declare ,@(loop :for name :in names
+                                      :for type :in (cdddr types)
+                                      :collect `(type ,type ,name))
+                              (type ,(first types) ,first)
+                              (type ,(second types) ,second)
+                              (type ,(third types) ,third))
+                     (not
+                      (not
+                       (and (>= ,first ,second)
+                          (>= ,second ,third)
+                          ,@(rec (cons third names) nil))))))))))
+      form))
 
 
 
@@ -312,13 +448,15 @@
   (cl:reduce #'+ xs :initial-value (+ (+ first second) third)))
 
 
-(defpolymorph-compiler-macro + (t t t &rest) (first second third &rest xs)
+(defpolymorph-compiler-macro + (t t t &rest) (&whole form first second third &rest xs
+                                                     &environment env)
   (labels ((gen+ (ls done)
              (if ls
                  (gen+ (cdr ls) `(+ ,done ,(car ls)))
                  done)))
-    `(the ,(cm:form-type first) ,(gen+ xs `(+ (+ ,first ,second) ,third)))))
-
+   (if (constantp (length xs) env)
+       `(the ,(cm:form-type first) ,(gen+ xs `(+ (+ ,first ,second) ,third)))
+       form)))
 
 (define-polymorphic-function - (x &rest xs) :overwrite t)
 
@@ -337,13 +475,15 @@
   (cl:reduce #'- xs :initial-value (- (- first second) third)))
 
 
-(defpolymorph-compiler-macro - (t t t &rest) (first second third &rest xs)
+(defpolymorph-compiler-macro - (t t t &rest) (&whole form first second third &rest xs
+                                                     &environment env)
   (labels ((gen- (ls done)
              (if ls
                  (gen- (cdr ls) `(- ,done ,(car ls)))
                  done)))
-    `(the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))))
-
+   (if (constantp (length xs) env)
+       `(the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))
+       form)))
 
 (define-polymorphic-function * (&rest xs) :overwrite t)
 
@@ -357,13 +497,15 @@
   (cl:reduce #'* xs :initial-value (* (* first second) third)))
 
 
-(defpolymorph-compiler-macro * (t t t &rest) (first second third &rest xs)
+(defpolymorph-compiler-macro * (t t t &rest) (&whole form first second third &rest xs
+                                                     &environment env)
   (labels ((gen* (ls done)
              (if ls
                  (gen* (cdr ls) `(* ,done ,(car ls)))
                  done)))
-    `(the ,(cm:form-type first) ,(gen* xs `(* (* ,first ,second) ,third)))))
-
+   (if (constantp (length xs) env)
+       `(the ,(cm:form-type first) ,(gen* xs `(* (* ,first ,second) ,third)))
+       form)))
 
 (define-polymorphic-function / (x &rest xs) :overwrite t)
 
@@ -379,13 +521,15 @@
   (cl:reduce #'/ xs :initial-value (/ (/ first second) third)))
 
 
-(defpolymorph-compiler-macro / (t t t &rest) (first second third &rest xs)
+(defpolymorph-compiler-macro / (t t t &rest) (&whole form first second third &rest xs
+                                                     &environment env)
   (labels ((gen/ (ls done)
              (if ls
                  (gen/ (cdr ls) `(/ ,done ,(car ls)))
                  done)))
-    `(the ,(cm:form-type first) ,(gen/ xs `(/ (/ ,first ,second) ,third)))))
-
+   (if (constantp (length xs) env)
+       `(the ,(cm:form-type first) ,(gen/ xs `(/ (/ ,first ,second) ,third)))
+       form)))
 
 
 
