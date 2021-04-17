@@ -39,21 +39,21 @@
   (declare (ignorable first))
   t)
 
-(defpolymorph (= :inline t) ((first number) (second number)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first number) (second number)) boolean
   (cl:= first second))
 
 
-(defpolymorph (= :inline t) ((first symbol) (second symbol)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first symbol) (second symbol)) boolean
   (eql first second))
 
-(defpolymorph (= :inline t) ((first character) (second character)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first character) (second character)) boolean
   (char= first second))
 
-(defpolymorph (= :inline t) ((first string) (second string)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first string) (second string)) boolean
   (string= first second))
 
 
-(defpolymorph (= :inline t) ((first cons) (second cons)) (values boolean &optional)
+(defpolymorph (= :inline t) ((first cons) (second cons)) boolean
               (and (= (car first) (car second))
                  (= (cdr first) (cdr second))))
 
@@ -61,7 +61,7 @@
 
 (defpolymorph (= :inline t) ((first array)
                              (second array))
-  (values boolean &optional)
+    boolean
 
   (let ((s1 (array-total-size first))
         (s2 (array-total-size second)))
@@ -103,7 +103,7 @@
 
 (defpolymorph (= :inline t) ((first (and vector (not simple-array)))
                              (second (and vector (not simple-array))))
-    (values boolean &optional)
+    boolean
   (let ((s1 (length first))
         (s2 (length second)))
     (and (cl:= s1 s2)
@@ -135,7 +135,7 @@
 
 
 
-(defpolymorph = ((first hash-table) (second hash-table)) (values boolean &optional)
+(defpolymorph = ((first hash-table) (second hash-table)) boolean
   (and ;;(eq (hash-table-test first) (hash-table-test second))
      ;;TODO Do I test this? What else do I (not) test?
    (cl:= (hash-table-size first) (hash-table-size second))
@@ -148,7 +148,7 @@
 
 
 (defpolymorph (= :inline t) ((first structure-object) (second structure-object))
-    (values boolean &optional)
+    boolean
   (let* ((type1        (type-of first))
          (type2        (type-of second)))
    (and (eql type1 type2)
@@ -169,7 +169,7 @@
              :collect `(= (the ,type (slot-value ,first ',name))
                           (the ,type (slot-value ,second ',name)))))))
 
-(defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+(defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) boolean
   (cl:reduce (lambda (a b) (and a (= b first)))
              args :initial-value (and (= first second) (= second third))))
 
@@ -212,10 +212,10 @@
   (declare (ignorable first))
   t)
 
-(defpolymorph (/= :inline t) ((first t) (second t)) (values boolean &optional)
+(defpolymorph (/= :inline t) ((first t) (second t)) boolean
   (not (= first second)))
 
-(defpolymorph (/= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+(defpolymorph (/= :inline t) ((first t) (second t) (third t) &rest args) boolean
   (not (cl:reduce (lambda (a b) (and a (= b first)))
                 args :initial-value (and (= first second) (= second third)))))
 
@@ -251,26 +251,26 @@
 
 
 
-(defpolymorph < ((first real) (second real)) (values boolean &optional)
+(defpolymorph < ((first real) (second real)) boolean
               (cL:< first second))
 
-(defpolymorph <= ((first real) (second real)) (values boolean &optional)
+(defpolymorph <= ((first real) (second real)) boolean
               (cl:<= first second))
 
-(defpolymorph < ((first character) (second character)) (values boolean &optional)
+(defpolymorph < ((first character) (second character)) boolean
               (char< first second))
 
-(defpolymorph <= ((first character) (second character)) (values boolean &optional)
+(defpolymorph <= ((first character) (second character)) boolean
               (char<= first second))
 
-(defpolymorph < ((first string) (second string)) (values boolean &optional)
+(defpolymorph < ((first string) (second string)) boolean
               (string< first second))
 
-(defpolymorph <= ((first string) (second string)) (values boolean &optional)
+(defpolymorph <= ((first string) (second string)) boolean
               (string<= first second))
 
 (defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args)
-    (values boolean &optional)
+    boolean
   (flet ((%%< (a b)
            (when (< a b) b)))
     (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
@@ -311,7 +311,7 @@
 
 
 (defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args)
-    (values boolean &optional)
+    boolean
   (flet ((%%<= (a b)
            (when (<= a b) b)))
     (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
@@ -348,13 +348,13 @@
       form))
 
 
-(defpolymorph > ((first t) (second t)) (values boolean &optional)
+(defpolymorph > ((first t) (second t)) boolean
   (not (<= first second)))
-(defpolymorph >= ((first t) (second t)) (values boolean &optional)
+(defpolymorph >= ((first t) (second t)) boolean
   (not (< first second)))
 
 (defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args)
-    (values boolean &optional)
+    boolean
   (flet ((%%> (a b)
            (when (> a b) b)))
     (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
@@ -393,7 +393,7 @@
 
 
 (defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args)
-    (values boolean &optional)
+    boolean
   (flet ((%%>= (a b)
            (when (>= a b) b)))
     (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
