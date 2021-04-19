@@ -322,26 +322,24 @@
 
 
 ;;; Different Types
-#||
 (test different-types-=
   :description "Test `=` on non-compatible types"
 
-  (signals no-applicable-polymorph (= 1 'x))
-  (signals no-applicable-polymorph (= 1 #\1))
-  (signals no-applicable-polymorph (= 1 "1" #\1))
+  (is (not (= 1 'x)))
+  (is (not (= 1 #\1)))
+  (is (not (= 1 "1" #\1)))
 
-  (signals no-applicable-polymorph (= #\a 'a))
-  (signals no-applicable-polymorph (= #\a "a"))
+  (is (not (= #\a 'a)))
+  (is (not (= #\a "a")))
 
-  (signals no-applicable-polymorph (= '(1 2 3) '(1 2 . 3)))
-  (signals no-applicable-polymorph (= "hello" '|hello|)))
+  (is (not (= '(1 2 3) '(1 2 . 3))))
+  (is (not (= "hello" '|hello|))))
 
 (test different-types-/=
   :description "Test `/=` on non-compatible types"
 
-  (signals no-applicable-polymorph (/= 1 "1" #\1))
+  (is (/= 1 "1" #\1))
 
-  (signals no-applicable-polymorph (/= #\a 'a))
-  (signals no-applicable-polymorph (/= #\a "a"))
-  (signals no-applicable-polymorph (/= #\a 'a "a")))
-||#
+  (is (/= #\a 'a))
+  (is (/= #\a "a"))
+  (is (/= #\a 'a "a")))
