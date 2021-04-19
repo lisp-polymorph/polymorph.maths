@@ -49,6 +49,28 @@
   (is (/= 1 1 3))
   (is (not (/= 1 1.0 2/2))))
 
+(test random-number-=
+  :description "Test `=` on random numbers"
+
+  (for-all ((a (gen-integer))
+            (b (gen-integer)))
+
+    (is (eq (= a b)
+            (cl:= a b)))
+
+    (is (eq (= b a) (= a b)))))
+
+(test random-number-/=
+  :description "Test `/=` on random numbers"
+
+  (for-all ((a (gen-integer))
+            (b (gen-integer)))
+
+    (is (eq (/= a b)
+            (cl:/= a b)))
+
+    (is (eq (/= b a) (/= a b)))))
+
 
 ;;;; Characters
 
@@ -62,6 +84,17 @@
   (is (= #\a #\a #\a))
   (is (not (= #\a #\A 'a))))
 
+(test random-character-=
+  :description "Test `=` on random characters"
+
+  (for-all ((a (gen-character))
+            (b (gen-character)))
+
+    (is (eq (= a b)
+            (cl:char= a b)))
+
+    (is (eq (= b a) (= a b)))))
+
 (test character-/=
   :description "Test `/=` on characters"
 
@@ -70,6 +103,17 @@
   (is (/= #\d #\d #\e))
 
   (is (not (/= #\a #\a #\a))))
+
+(test random-character-/=
+  :description "Test `/=` on random characters"
+
+  (for-all ((a (gen-character))
+            (b (gen-character)))
+
+    (is (eq (/= a b)
+            (cl:char/= a b)))
+
+    (is (eq (/= b a) (/= a b)))))
 
 
 ;;;; Conses/Lists
@@ -180,6 +224,16 @@
   (is (not (= "hello" "Hello")))
   (is (not (= "world" "worlds"))))
 
+(test random-string-=
+  :description "Test `=` on random strings"
+
+  (for-all ((s1 (gen-string))
+            (s2 (gen-string)))
+
+    (is (not
+         (xor (= s1 s2)
+              (string= s1 s2))))))
+
 (test string-/=
   :description "Test `/=` on strings"
 
@@ -190,6 +244,16 @@
 
   (is (/= "hello" "Hello"))
   (is (/= "world" "worlds")))
+
+(test random-string-/=
+  :description "Test `/=` on random strings"
+
+  (for-all ((s1 (gen-string))
+            (s2 (gen-string)))
+
+    (is (not
+         (xor (/= s1 s2)
+              (string/= s1 s2))))))
 
 ;;; Hash-Tables
 
