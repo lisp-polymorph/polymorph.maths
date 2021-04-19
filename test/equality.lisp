@@ -6,7 +6,10 @@
    #:polymorph.maths
     #:= #:/=
     #:< #:<= #:> #:>=
-    #:+ #:- #:* #:/))
+    #:+ #:- #:* #:/)
+
+  (:import-from :adhoc-polymorphic-functions
+                :no-applicable-polymorph))
 
 (in-package #:polymorph.maths/test.equality)
 
@@ -31,12 +34,11 @@
   (is (= 6/3 2))
 
   (is (not (= 1 0)))
-  (is (not (= 1 'x)))
-  (is (not (= 1 #\1)))
+  (is (not (= 2.3 5.7)))
 
   (is (= 1))
   (is (= 1 1.0 2/2))
-  (is (not (= 1 "1" #\1))))
+  (is (not (= 1 1 3))))
 
 (test number-/=
   :description "Test `/=` on numbers"
@@ -44,7 +46,7 @@
   (is (/= 1 0))
   (is (/= 2 3))
   (is (/= 1))
-  (is (/= 1 "1" #\1))
+  (is (/= 1 1 3))
   (is (not (/= 1 1.0 2/2))))
 
 
@@ -55,10 +57,7 @@
 
   (is (= #\a #\a))
   (is (= #\0 #\0))
-
   (is (not (= #\a #\A)))
-  (is (not (= #\a 'a)))
-  (is (not (= #\a "a")))
 
   (is (= #\a #\a #\a))
   (is (not (= #\a #\A 'a))))
@@ -68,10 +67,8 @@
 
   (is (/= #\a #\A))
   (is (/= #\x #\y))
- (is (/= #\a 'a))
- (is (/= #\a "a"))
+  (is (/= #\d #\d #\e))
 
-  (is (/= #\a 'a "a"))
   (is (not (/= #\a #\a #\a))))
 
 
@@ -81,12 +78,15 @@
   :description "Test `=` on lists and cons"
 
   (is (= '(1 2 3) (list 1.0 2 3.0)))
+  (is (= '(a b c) (cons 'a (cons 'b (cons 'c nil)))))
   (is (= '(1 a #\x) (list 2/2 'a #\x)))
   (is (= '(((1 2) x y) #\z) (list (list (list 1 2) 'x 'y) #\z)))
+  (is (= '("abc" "def") (list "abc" "def")))
+  (is (= nil (cdr (list '1))))
+  (is (= '(5 6 . 3) '(5.0 6 . 3.0)))
 
   (is (not (= '(1 2 3) '(1 2 1))))
-  (is (not (= '(1 2 3) '(1 2))))
-  (is (not (= '(1 2 3) '(1 2 . 3)))))
+  (is (not (= '(1 2 3) '(1 2)))))
 
 
 ;;; Single-dimensional Arrays (Vector)
@@ -135,7 +135,6 @@
   (is (= "hello" (vector #\h #\e #\l #\l #\o)))
 
   (is (not (= "hello" "Hello")))
-  (is (not (= "hello" '|hello|)))
   (is (not (= "world" "worlds"))))
 
 
@@ -189,3 +188,28 @@
   (is (not (= :key1 :key2)))
   (is (not (= 'a :a)))
   (is (not (= 'a '#:a))))
+
+
+;;; Different Types
+
+(test different-types-=
+  :description "Test `=` on non-compatible types"
+
+  (signals no-applicable-polymorph (= 1 'x))
+  (signals no-applicable-polymorph (= 1 #\1))
+  (signals no-applicable-polymorph (= 1 "1" #\1))
+
+  (signals no-applicable-polymorph (= #\a 'a))
+  (signals no-applicable-polymorph (= #\a "a"))
+
+  (signals no-applicable-polymorph (= '(1 2 3) '(1 2 . 3)))
+  (signals no-applicable-polymorph (= "hello" '|hello|)))
+
+(test different-types-/=
+  :description "Test `/=` on non-compatible types"
+
+  (signals no-applicable-polymorph (/= 1 "1" #\1))
+
+  (signals no-applicable-polymorph (/= #\a 'a))
+  (signals no-applicable-polymorph (/= #\a "a"))
+  (signals no-applicable-polymorph (/= #\a 'a "a")))
