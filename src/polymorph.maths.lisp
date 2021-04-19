@@ -66,6 +66,7 @@
   (let ((s1 (array-total-size first))
         (s2 (array-total-size second)))
     (and (cl:= s1 s2)
+       (equal (array-dimensions first) (array-dimensions second))
        (loop :for i :below s1
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
@@ -96,6 +97,7 @@
       `(let ((,s1 ,size1)
              (,s2 ,size2))
          (and (cl:= ,s1 ,s2)
+            (equal (array-dimensions ,first) (array-dimensions ,second))
             (loop :for ,i :below ,s1
                   :always (= (the ,elt1 (row-major-aref ,first ,i))
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
@@ -168,6 +170,17 @@
              :for type := (mop:slot-definition-type slot)
              :collect `(= (the ,type (slot-value ,first ',name))
                           (the ,type (slot-value ,second ',name)))))))
+
+
+(defpolymorph (= :inline t) ((first t) (second t)) boolean
+    (declare (ignorable first second))
+    nil)
+
+(defpolymorph-compiler-macro = (t t) (first second)
+    (declare (ignorable first second))
+    (warn "Different types equality defaults to nil")
+    nil)
+
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) boolean
   (cl:reduce (lambda (a b) (and a (= b first)))
@@ -264,10 +277,10 @@
               (char<= first second))
 
 (defpolymorph < ((first string) (second string)) boolean
-              (string< first second))
+              (not (not (string< first second))))
 
 (defpolymorph <= ((first string) (second string)) boolean
-              (string<= first second))
+              (not (not (string<= first second))))
 
 (defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args)
     boolean
@@ -366,7 +379,7 @@
       (let ((types (mapcar (lambda (x) (%form-type x env))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
-            `(cl:<= ,first ,second ,third ,@args)
+            `(cl:> ,first ,second ,third ,@args)
             (labels ((rec (ls res)
                        (if (cdr ls)
                            (rec (cdr ls) (cons `(> ,(car ls) ,(cadr ls))
@@ -406,7 +419,7 @@
       (let ((types (mapcar (lambda (x) (%form-type x env))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
-            `(cl:<= ,first ,second ,third ,@args)
+            `(cl:>= ,first ,second ,third ,@args)
             (labels ((rec (ls res)
                        (if (cdr ls)
                            (rec (cdr ls) (cons `(>= ,(car ls) ,(cadr ls))

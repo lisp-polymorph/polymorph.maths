@@ -322,7 +322,7 @@
 
 
 ;;; Different Types
-
+#||
 (test different-types-=
   :description "Test `=` on non-compatible types"
 
@@ -344,3 +344,4 @@
   (signals no-applicable-polymorph (/= #\a 'a))
   (signals no-applicable-polymorph (/= #\a "a"))
   (signals no-applicable-polymorph (/= #\a 'a "a")))
+||#
