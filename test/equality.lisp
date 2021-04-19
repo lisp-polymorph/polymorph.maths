@@ -88,6 +88,20 @@
   (is (not (= '(1 2 3) '(1 2 1))))
   (is (not (= '(1 2 3) '(1 2)))))
 
+(test cons-/=
+  :description "Test `/=` on lists and cons"
+
+  (is (not (/= '(1 2 3) (list 1.0 2 3.0))))
+  (is (not (/= '(a b c) (cons 'a (cons 'b (cons 'c nil))))))
+  (is (not (/= '(1 a #\x) (list 2/2 'a #\x))))
+  (is (not (/= '(((1 2) x y) #\z) (list (list (list 1 2) 'x 'y) #\z))))
+  (is (not (/= '("abc" "def") (list "abc" "def"))))
+  (is (not (/= nil (cdr (list '1)))))
+  (is (not (/= '(5 6 . 3) '(5.0 6 . 3.0))))
+
+  (is (/= '(1 2 3) '(1 2 1)))
+  (is (/= '(1 2 3) '(1 2))))
+
 
 ;;; Single-dimensional Arrays (Vector)
 
@@ -111,6 +125,26 @@
   (is (not (= #(1 2 3) (make-array '(2 2) :initial-contents '((1 2) (3 4))))))
   (is (not (= #(#(1 2)) #(#(2 1))))))
 
+(test vector-/=
+  :description "Test `/=` on single dimensional arrays (vectors)"
+
+  (is (not (/= #(1 2 3) (vector 1 2 3))))
+  (is (not (/= #(1 2 3) (make-array 3
+                                :element-type 'number
+                                :adjustable t
+                                :fill-pointer t
+                                :initial-contents '(1 2 3)))))
+
+  (is (not (/= #(1 2 x) (vector 1.0 2 'x))))
+  (is (not (/= #(#(1 2) 3) (vector (vector 1.0 2.0) 3))))
+  (is (not (/= #((1 2) 3) (vector '(1.0 2.0) 3))))
+
+  (is (/= #(1 2 3) #(1 1 1)))
+  (is (/= #(1 2 3) #(1 2 3 4)))
+  (is (/= #(1 2 3) (make-array 0)))
+  (is (/= #(1 2 3) (make-array '(2 2) :initial-contents '((1 2) (3 4)))))
+  (is (/= #(#(1 2)) #(#(2 1)))))
+
 
 ;;; Multi-dimensional Arrays
 
@@ -122,6 +156,15 @@
 
   (is (not (= #2A((1 2) (3 4)) #2A((1 1) (3 4)))))
   (is (not (= #2A((1 2) (3 4)) #(1 2 3 4)))))
+
+(test nd-array-/=
+  :description "Test `/=` on multi-dimensional arrays"
+
+  (is (not (/= #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))))
+  (is (not (/= #2A((1 (3 4)) (5 #\c)) (make-array '(2 2) :initial-contents '((1 (3 4)) (5 #\c))))))
+
+  (is (/= #2A((1 2) (3 4)) #2A((1 1) (3 4))))
+  (is (/= #2A((1 2) (3 4)) #(1 2 3 4))))
 
 
 ;;; Strings
@@ -137,6 +180,16 @@
   (is (not (= "hello" "Hello")))
   (is (not (= "world" "worlds"))))
 
+(test string-/=
+  :description "Test `/=` on strings"
+
+  (is (not (/= "Hello" "Hello")))
+  (is (not (/= "World" (string '|World|))))
+  (is (not (/= "AAA" (make-string 3 :initial-element #\A))))
+  (is (not (/= "hello" (vector #\h #\e #\l #\l #\o))))
+
+  (is (/= "hello" "Hello"))
+  (is (/= "world" "worlds")))
 
 ;;; Hash-Tables
 
@@ -188,6 +241,20 @@
   (is (not (= :key1 :key2)))
   (is (not (= 'a :a)))
   (is (not (= 'a '#:a))))
+
+(test symbol-/=
+  :description "Test `/=` on symbols"
+
+  (is (not (/= 'a 'a)))
+  (is (not (/= 'sym 'sym)))
+  (is (not (/= '|a symbol| '|a symbol|)))
+  (is (not (/= :key :key)))
+
+  (is (/= 'a 'b))
+  (is (/= 'sym 'syms))
+  (is (/= :key1 :key2))
+  (is (/= 'a :a))
+  (is (/= 'a '#:a)))
 
 
 ;;; Different Types
