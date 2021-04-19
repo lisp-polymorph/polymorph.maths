@@ -66,6 +66,7 @@
   (let ((s1 (array-total-size first))
         (s2 (array-total-size second)))
     (and (cl:= s1 s2)
+       (cl:equal (array-dimensions first) (array-dimensions second))
        (loop :for i :below s1
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
@@ -96,6 +97,7 @@
       `(let ((,s1 ,size1)
              (,s2 ,size2))
          (and (cl:= ,s1 ,s2)
+            (cl:equal (array-dimensions ,first) (array-dimensions ,second))
             (loop :for ,i :below ,s1
                   :always (= (the ,elt1 (row-major-aref ,first ,i))
                              (the ,elt2 (row-major-aref ,second ,i)))))))))
