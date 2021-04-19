@@ -26,7 +26,8 @@
                 :serial t
                 :components
                 ((:file "test")
-                 (:file "equality"))))
+                 (:file "equality")
+                 (:file "comparison"))))
 
   :perform (test-op (o s)
                     (uiop:symbol-call '#:polymorph.maths/test '#:test-polymorph.maths)))
