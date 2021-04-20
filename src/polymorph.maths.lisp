@@ -464,7 +464,6 @@
 (defpolymorph (+ :inline t) ((first t) (second t) (third t) &rest xs) t
   (cl:reduce #'+ xs :initial-value (+ (+ first second) third)))
 
-
 (defpolymorph-compiler-macro + (t t t &rest) (&whole form first second third &rest xs
                                                      &environment env)
   (labels ((gen+ (ls done)
@@ -506,7 +505,6 @@
 
 (defpolymorph * () (eql 1)
   1)
-
 
 (defpolymorph * ((a t)) t
   a)
