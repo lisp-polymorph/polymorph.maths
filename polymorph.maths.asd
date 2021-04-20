@@ -27,7 +27,8 @@
                 :components
                 ((:file "test")
                  (:file "equality")
-                 (:file "comparison"))))
+                 (:file "comparison")
+                 (:file "arithmetic"))))
 
   :perform (test-op (o s)
                     (uiop:symbol-call '#:polymorph.maths/test '#:test-polymorph.maths)))
