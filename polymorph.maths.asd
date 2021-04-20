@@ -4,7 +4,7 @@
     :description "Maths for polymorph.stl"
     :author "Commander Thrashdin"
     :license  "MIT"
-    :version "0.5"
+    :version "1.0"
     :serial t
     :depends-on (#:adhoc-polymorphic-functions #:compiler-macro)
     :components ((:module
