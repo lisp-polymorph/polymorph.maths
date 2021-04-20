@@ -22,5 +22,5 @@ Standart mathematical comparison. By default is defined by reals, chars and stri
 d(define-polymorphic-function * (&rest args))
 efine-polymorphic-function / (x &rest args))
 ```
-Standart mathematical operations. Defined for numbers. + and - are also defined for chars. Should always     return object from the same domain.
+Standart mathematical operations. Defined for numbers. + and - are also defined for chars. Always return object from the same domain. For numbers adhere to clhs documentation.
 
