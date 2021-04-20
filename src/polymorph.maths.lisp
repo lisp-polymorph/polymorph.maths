@@ -448,6 +448,10 @@
 ;; Arithmetics
 (define-polymorphic-function + (&rest xs) :overwrite t)
 
+(defpolymorph + () (eql 0)
+  0)
+
+
 (defpolymorph + ((a t)) t
   a)
 
@@ -468,7 +472,7 @@
                  (gen+ (cdr ls) `(+ ,done ,(car ls)))
                  done)))
    (if (constantp (length xs) env)
-       `(the ,(cm:form-type first) ,(gen+ xs `(+ (+ ,first ,second) ,third)))
+       (gen+ xs `(+ (+ ,first ,second) ,third))
        form)))
 
 (define-polymorphic-function - (x &rest xs) :overwrite t)
@@ -495,10 +499,14 @@
                  (gen- (cdr ls) `(- ,done ,(car ls)))
                  done)))
    (if (constantp (length xs) env)
-       `(the ,(cm:form-type first) ,(gen- xs `(- (- ,first ,second) ,third)))
+       (gen- xs `(- (- ,first ,second) ,third))
        form)))
 
 (define-polymorphic-function * (&rest xs) :overwrite t)
+
+(defpolymorph * () (eql 1)
+  1)
+
 
 (defpolymorph * ((a t)) t
   a)
@@ -517,7 +525,7 @@
                  (gen* (cdr ls) `(* ,done ,(car ls)))
                  done)))
    (if (constantp (length xs) env)
-       `(the ,(cm:form-type first) ,(gen* xs `(* (* ,first ,second) ,third)))
+       (gen* xs `(* (* ,first ,second) ,third))
        form)))
 
 (define-polymorphic-function / (x &rest xs) :overwrite t)
@@ -541,7 +549,7 @@
                  (gen/ (cdr ls) `(/ ,done ,(car ls)))
                  done)))
    (if (constantp (length xs) env)
-       `(the ,(cm:form-type first) ,(gen/ xs `(/ (/ ,first ,second) ,third)))
+       (gen/ xs `(/ (/ ,first ,second) ,third))
        form)))
 
 
