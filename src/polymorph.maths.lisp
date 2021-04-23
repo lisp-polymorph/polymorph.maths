@@ -366,9 +366,9 @@
       form))
 
 
-(defpolymorph > ((first t) (second t)) boolean
+(defpolymorph (> :inline t) ((first t) (second t)) boolean
   (not (<= first second)))
-(defpolymorph >= ((first t) (second t)) boolean
+(defpolymorph (>= :inline t) ((first t) (second t)) boolean
   (not (< first second)))
 
 (defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args)
@@ -447,6 +447,48 @@
                           (>= ,second ,third)
                           ,@(rec (cons third names) nil))))))))))
       form))
+
+
+
+
+(define-polymorphic-function max (&rest xs) :overwrite t)
+(define-polymorphic-function min (&rest xs) :overwrite t)
+
+(defpolymorph max ((a t)) t
+  a)
+(defpolymorph min ((a t)) t
+  a)
+
+(defpolymorph max ((first number) (second number)) number
+  (if (> first second) first second))
+(defpolymorph min ((first number) (second number)) number
+  (if (<= first second) first second))
+
+(defpolymorph (max :inline t) ((first t) (second t) (third t) &rest xs) t
+  (cl:reduce #'max xs :initial-value (max (max first second) third)))
+
+(defpolymorph-compiler-macro max (t t t &rest) (&whole form first second third &rest xs
+                                                       &environment env)
+  (labels ((genmax (ls done)
+             (if ls
+                 (genmax (cdr ls) `(max ,done ,(car ls)))
+                 done)))
+    (if (constantp (length xs) env)
+        (genmax xs `(max (max ,first ,second) ,third))
+        form)))
+
+(defpolymorph (min :inline t) ((first t) (second t) (third t) &rest xs) t
+  (cl:reduce #'min xs :initial-value (min (min first second) third)))
+
+(defpolymorph-compiler-macro min (t t t &rest) (&whole form first second third &rest xs
+                                                       &environment env)
+  (labels ((genmin (ls done)
+             (if ls
+                 (genmin (cdr ls) `(min ,done ,(car ls)))
+                 done)))
+    (if (constantp (length xs) env)
+        (genmin xs `(min (min ,first ,second) ,third))
+        form)))
 
 
 
