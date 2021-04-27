@@ -459,10 +459,31 @@
 (defpolymorph min ((a t)) t
   a)
 
-(defpolymorph max ((first number) (second number)) number
-  (if (> first second) first second))
-(defpolymorph min ((first number) (second number)) number
-  (if (<= first second) first second))
+(defpolymorph max ((first t) (second t)) t
+  (if (< second first) first second))
+(defpolymorph min ((first t) (second t)) t
+  (if (not (< second first)) first second))
+
+(defpolymorph-compiler-macro max (t t) (first second &environment env)
+  (let ((type1 (%form-type first env))
+        (type2 (%form-type second env))
+        (name1 (gensym "FIRST"))
+        (name2 (gensym "SECOND")))
+    `(let ((,name1 ,first)
+           (,name2 ,second))
+       (declare (type ,type1 ,name1) (type ,type2 ,name2))
+       (if (< ,name2 ,name1) ,name1 ,name2))))
+
+(defpolymorph-compiler-macro mim (t t) (first second &environment env)
+  (let ((type1 (%form-type first env))
+        (type2 (%form-type second env))
+        (name1 (gensym "FIRST"))
+        (name2 (gensym "SECOND")))
+    `(let ((,name1 ,first)
+           (,name2 ,second))
+       (declare (type ,type1 ,name1) (type ,type2 ,name2))
+       (if (not (< ,name2 ,name1)) ,name1 ,name2))))
+
 
 (defpolymorph (max :inline t) ((first t) (second t) (third t) &rest xs) t
   (cl:reduce #'max xs :initial-value (max (max first second) third)))
