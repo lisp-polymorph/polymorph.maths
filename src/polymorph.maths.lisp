@@ -474,7 +474,7 @@
        (declare (type ,type1 ,name1) (type ,type2 ,name2))
        (if (< ,name2 ,name1) ,name1 ,name2))))
 
-(defpolymorph-compiler-macro mim (t t) (first second &environment env)
+(defpolymorph-compiler-macro min (t t) (first second &environment env)
   (let ((type1 (%form-type first env))
         (type2 (%form-type second env))
         (name1 (gensym "FIRST"))
