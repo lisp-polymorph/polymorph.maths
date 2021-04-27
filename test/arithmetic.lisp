@@ -23,7 +23,7 @@
 ;;; Numbers
 
 (test number-+
-  :description "Test `+` on numbers."
+  "Test `+` on numbers."
 
   (is (= (+ 1 2) 3))
   (is (= (+) 0))
@@ -31,7 +31,7 @@
   (is (= (+ 1 2 3 4) 10)))
 
 (test number--
-  :description "Test `-` on numbers."
+  "Test `-` on numbers."
 
   (is (= (- 3 4) -1))
   (is (= (- 3) -3))
@@ -39,7 +39,7 @@
   (is (= (- 5 4 3) -2)))
 
 (test number-*
-  :description "Test `*` on numbers."
+  "Test `*` on numbers."
 
   (is (= (* 2 4) 8))
   (is (= (*) 1))
@@ -47,7 +47,7 @@
   (is (= (* 2 3 4 5) 120)))
 
 (test number-/
-  :description "Test `/` on numbers."
+  "Test `/` on numbers."
 
   (is (= (/ 6 3) 2))
   (is (= (/ 5 4) 5/4))
@@ -57,7 +57,7 @@
 ;;;; Random Input
 
 (test random-number-+
-  :description "Test `+` on random numbers."
+  "Test `+` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -66,7 +66,7 @@
     (is (= (+ a b) (+ b a)))))
 
 (test random-number--
-  :description "Test `-` on random numbers."
+  "Test `-` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -75,7 +75,7 @@
     (is (= (- a b) (- (- b a))))))
 
 (test random-number-*
-  :description "Test `*` on random numbers."
+  "Test `*` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -84,7 +84,7 @@
     (is (= (* a b) (* b a)))))
 
 (test random-number-/
-  :description "Test `/` on random numbers."
+  "Test `/` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -95,7 +95,7 @@
 ;;; Characters
 
 (test character-+
-  :description "Test `+` on characters."
+  "Test `+` on characters."
 
   (is (char=
        (+ #\a #\x)
@@ -121,7 +121,7 @@
         (cl:+ #x95 #x101)))))
 
 (test character--
-  :description "Test `-` on characters."
+  "Test `-` on characters."
 
   (is (char=
        (- #\x #\a)
@@ -148,14 +148,14 @@
 ;;; Different Types
 
 (test different-types-+
-  :description "Test that `+` signals condition on arguments of different types."
+  "Test that `+` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (+ 1 'x))
   (signals no-applicable-polymorph (+ 1 #\c))
   (signals no-applicable-polymorph (+ "a" "b")))
 
 (test different-types--
-  :description "Test that `-` signals condition on arguments of different types."
+  "Test that `-` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (- 3 "z"))
   (signals no-applicable-polymorph (- 3 #\c))
@@ -163,14 +163,14 @@
   (signals no-applicable-polymorph (- 'x)))
 
 (test different-types-*
-  :description "Test that `*` signals condition on arguments of different types."
+  "Test that `*` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (* 4 #\a))
   (signals no-applicable-polymorph (* 10 'x10))
   (signals no-applicable-polymorph (* "5" "6")))
 
 (test different-types-/
-  :description "Test that `/` signals condition on arguments of different types."
+  "Test that `/` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (/ 'a 'b))
   (signals no-applicable-polymorph (/ 3 #\2))

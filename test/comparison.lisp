@@ -27,7 +27,7 @@
 ;;;; Numbers
 
 (test number-<
-  :description "Test `<` on numbers"
+  "Test `<` on numbers"
 
   (is (< 1 2))
   (is (< 3.11 10))
@@ -45,7 +45,7 @@
   (is (not (< 2 3 5 4 6))))
 
 (test number->
-  :description "Test `>` on numbers"
+  "Test `>` on numbers"
 
   (is (> 9 3))
   (is (> 12 5.3))
@@ -63,7 +63,7 @@
   (is (not (> 5 4 1 2 3))))
 
 (test number-<=
-  :description "Test `<=` on numbers"
+  "Test `<=` on numbers"
 
   (is (<= 2 7))
   (is (<= 7 7))
@@ -78,7 +78,7 @@
   (is (not (<= 1 2 4 3))))
 
 (test number->=
-  :description "Test `>=` on numbers"
+  "Test `>=` on numbers"
 
   (is (>= 10 5))
   (is (>= 10 10))
@@ -95,7 +95,7 @@
 ;;;; Random Numbers
 
 (test random-number-<
-  :description "Test `<` on random numbers."
+  "Test `<` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -104,7 +104,7 @@
             (cl:< a b)))))
 
 (test random-number->
-  :description "Test `>` on random numbers."
+  "Test `>` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -113,7 +113,7 @@
             (cl:> a b)))))
 
 (test random-number-<=
-  :description "Test `<=` on random numbers."
+  "Test `<=` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -122,7 +122,7 @@
             (cl:<= a b)))))
 
 (test random-number->=
-  :description "Test `>=` on random numbers."
+  "Test `>=` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -134,7 +134,7 @@
 ;;;; Characters
 
 (test character-<
-  :description "Test `<` on characters"
+  "Test `<` on characters"
 
   (is (< #\a #\b))
   (is (< #\1 #\7))
@@ -144,7 +144,7 @@
   (is (not (< #\6 #\5))))
 
 (test character->
-  :description "Test `>` on characters"
+  "Test `>` on characters"
 
   (is (> #\x #\d))
   (is (> #\4 #\1))
@@ -154,14 +154,14 @@
   (is (not (> #\0 #\5))))
 
 (test character-<=
-  :description "Test `<=` on characters"
+  "Test `<=` on characters"
 
   (is (<= #\a #\z))
   (is (<= #\c #\c))
   (is (not (<= #\x #\f))))
 
 (test character->=
-  :description "Test `>=` on characters"
+  "Test `>=` on characters"
 
   (is (>= #\x #\f))
   (is (>= #\r #\r))
@@ -170,7 +170,7 @@
 ;;;; Random Characters
 
 (test random-character-<
-  :description "Test `<` on random characters."
+  "Test `<` on random characters."
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -179,7 +179,7 @@
             (cl:char< a b)))))
 
 (test random-character->
-  :description "Test `>` on random characters."
+  "Test `>` on random characters."
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -188,7 +188,7 @@
             (cl:char> a b)))))
 
 (test random-character-<=
-  :description "Test `<=` on random character."
+  "Test `<=` on random character."
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -197,7 +197,7 @@
             (cl:char<= a b)))))
 
 (test random-character->=
-  :description "Test `>=` on random character."
+  "Test `>=` on random character."
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -209,7 +209,7 @@
 ;;;; Strings
 
 (test string-<
-  :description "Test `<` on strings"
+  "Test `<` on strings"
 
   (is (< "aaa" "aab"))
   (is (< "hello" "hello world"))
@@ -220,7 +220,7 @@
   (is (not (< "hello2" "hello1"))))
 
 (test string->
-  :description "Test `>` on strings"
+  "Test `>` on strings"
 
   (is (> "aax" "aaa"))
   (is (> "hello world" "hello"))
@@ -231,14 +231,14 @@
   (is (not (> "hello1" "hello2"))))
 
 (test string-<=
-  :description "Test `<=` on strings"
+  "Test `<=` on strings"
 
   (is (<= "aaa" "aab"))
   (is (<= "aaa" "aaa"))
   (is (not (<= "aab" "aaa"))))
 
 (test string->=
-  :description "Test `>=` on strings"
+  "Test `>=` on strings"
 
   (is (>= "aab" "aaa"))
   (is (>= "aaa" "aaa"))
@@ -247,7 +247,7 @@
 ;;;; Random Strings
 
 (test random-string-<
-  :description "Test `<` on random strings."
+  "Test `<` on random strings."
 
   (for-all ((a (gen-string))
             (b (gen-string)))
@@ -257,7 +257,7 @@
               (string< a b))))))
 
 (test random-string->
-  :description "Test `>` on random strings."
+  "Test `>` on random strings."
 
   (for-all ((a (gen-string))
             (b (gen-string)))
@@ -267,7 +267,7 @@
               (string> a b))))))
 
 (test random-string-<
-  :description "Test `<=` on random strings."
+  "Test `<=` on random strings."
 
   (for-all ((a (gen-string))
             (b (gen-string)))
@@ -277,7 +277,7 @@
               (string<= a b))))))
 
 (test random-string->=
-  :description "Test `>=` on random strings."
+  "Test `>=` on random strings."
 
   (for-all ((a (gen-string))
             (b (gen-string)))

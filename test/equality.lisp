@@ -27,7 +27,7 @@
 ;;;; Numbers
 
 (test number-=
-  :description "Test `=` on numbers"
+  "Test `=` on numbers"
 
   (is (= 1 1))
   (is (= 2.0 2))
@@ -41,7 +41,7 @@
   (is (not (= 1 1 3))))
 
 (test number-/=
-  :description "Test `/=` on numbers"
+  "Test `/=` on numbers"
 
   (is (/= 1 0))
   (is (/= 2 3))
@@ -50,7 +50,7 @@
   (is (not (/= 1 1.0 2/2))))
 
 (test random-number-=
-  :description "Test `=` on random numbers"
+  "Test `=` on random numbers"
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -61,7 +61,7 @@
     (is (eq (= b a) (= a b)))))
 
 (test random-number-/=
-  :description "Test `/=` on random numbers"
+  "Test `/=` on random numbers"
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
@@ -75,7 +75,7 @@
 ;;;; Characters
 
 (test character-=
-  :description "Test `=` on characters"
+  "Test `=` on characters"
 
   (is (= #\a #\a))
   (is (= #\0 #\0))
@@ -85,7 +85,7 @@
   (is (not (= #\a #\A 'a))))
 
 (test random-character-=
-  :description "Test `=` on random characters"
+  "Test `=` on random characters"
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -96,7 +96,7 @@
     (is (eq (= b a) (= a b)))))
 
 (test character-/=
-  :description "Test `/=` on characters"
+  "Test `/=` on characters"
 
   (is (/= #\a #\A))
   (is (/= #\x #\y))
@@ -105,7 +105,7 @@
   (is (not (/= #\a #\a #\a))))
 
 (test random-character-/=
-  :description "Test `/=` on random characters"
+  "Test `/=` on random characters"
 
   (for-all ((a (gen-character))
             (b (gen-character)))
@@ -119,7 +119,7 @@
 ;;;; Conses/Lists
 
 (test cons-=
-  :description "Test `=` on lists and cons"
+  "Test `=` on lists and cons"
 
   (is (= '(1 2 3) (list 1.0 2 3.0)))
   (is (= '(a b c) (cons 'a (cons 'b (cons 'c nil)))))
@@ -133,7 +133,7 @@
   (is (not (= '(1 2 3) '(1 2)))))
 
 (test cons-/=
-  :description "Test `/=` on lists and cons"
+  "Test `/=` on lists and cons"
 
   (is (not (/= '(1 2 3) (list 1.0 2 3.0))))
   (is (not (/= '(a b c) (cons 'a (cons 'b (cons 'c nil))))))
@@ -150,7 +150,7 @@
 ;;; Single-dimensional Arrays (Vector)
 
 (test vector-=
-  :description "Test `=` on single dimensional arrays (vectors)"
+  "Test `=` on single dimensional arrays (vectors)"
 
   (is (= #(1 2 3) (vector 1 2 3)))
   (is (= #(1 2 3) (make-array 3
@@ -170,7 +170,7 @@
   (is (not (= #(#(1 2)) #(#(2 1))))))
 
 (test vector-/=
-  :description "Test `/=` on single dimensional arrays (vectors)"
+  "Test `/=` on single dimensional arrays (vectors)"
 
   (is (not (/= #(1 2 3) (vector 1 2 3))))
   (is (not (/= #(1 2 3) (make-array 3
@@ -193,7 +193,7 @@
 ;;; Multi-dimensional Arrays
 
 (test nd-array-=
-  :description "Test `=` on multi-dimensional arrays"
+  "Test `=` on multi-dimensional arrays"
 
   (is (= #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6)))))
   (is (= #2A((1 (3 4)) (5 #\c)) (make-array '(2 2) :initial-contents '((1 (3 4)) (5 #\c)))))
@@ -202,7 +202,7 @@
   (is (not (= #2A((1 2) (3 4)) #(1 2 3 4)))))
 
 (test nd-array-/=
-  :description "Test `/=` on multi-dimensional arrays"
+  "Test `/=` on multi-dimensional arrays"
 
   (is (not (/= #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))))
   (is (not (/= #2A((1 (3 4)) (5 #\c)) (make-array '(2 2) :initial-contents '((1 (3 4)) (5 #\c))))))
@@ -214,7 +214,7 @@
 ;;; Strings
 
 (test string-=
-  :description "Test `=` on strings"
+  "Test `=` on strings"
 
   (is (= "Hello" "Hello"))
   (is (= "World" (string '|World|)))
@@ -225,7 +225,7 @@
   (is (not (= "world" "worlds"))))
 
 (test random-string-=
-  :description "Test `=` on random strings"
+  "Test `=` on random strings"
 
   (for-all ((s1 (gen-string))
             (s2 (gen-string)))
@@ -235,7 +235,7 @@
               (string= s1 s2))))))
 
 (test string-/=
-  :description "Test `/=` on strings"
+  "Test `/=` on strings"
 
   (is (not (/= "Hello" "Hello")))
   (is (not (/= "World" (string '|World|))))
@@ -246,7 +246,7 @@
   (is (/= "world" "worlds")))
 
 (test random-string-/=
-  :description "Test `/=` on random strings"
+  "Test `/=` on random strings"
 
   (for-all ((s1 (gen-string))
             (s2 (gen-string)))
@@ -258,7 +258,7 @@
 ;;; Hash-Tables
 
 (test hash-table-=
-  :description "Test `=` on hash-tables"
+  "Test `=` on hash-tables"
 
   (let ((table (make-hash-table :test #'equal)))
     (setf (gethash 'x table) 1)
@@ -293,7 +293,7 @@
 ;;; Symbols
 
 (test symbol-=
-  :description "Test `=` on symbols"
+  "Test `=` on symbols"
 
   (is (= 'a 'a))
   (is (= 'sym 'sym))
@@ -307,7 +307,7 @@
   (is (not (= 'a '#:a))))
 
 (test symbol-/=
-  :description "Test `/=` on symbols"
+  "Test `/=` on symbols"
 
   (is (not (/= 'a 'a)))
   (is (not (/= 'sym 'sym)))
@@ -323,7 +323,7 @@
 
 ;;; Different Types
 (test different-types-=
-  :description "Test `=` on non-compatible types"
+  "Test `=` on non-compatible types"
 
   (is (not (= 1 'x)))
   (is (not (= 1 #\1)))
@@ -336,7 +336,7 @@
   (is (not (= "hello" '|hello|))))
 
 (test different-types-/=
-  :description "Test `/=` on non-compatible types"
+  "Test `/=` on non-compatible types"
 
   (is (/= 1 "1" #\1))
 
