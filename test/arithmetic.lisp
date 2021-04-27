@@ -25,34 +25,34 @@
 (test number-+
   "Test `+` on numbers."
 
-  (is (= (+ 1 2) 3))
-  (is (= (+) 0))
-  (is (= (+ 2) 2))
-  (is (= (+ 1 2 3 4) 10)))
+  (is (= 3 (+ 1 2)))
+  (is (= 0 (+)))
+  (is (= 2 (+ 2)))
+  (is (= 10 (+ 1 2 3 4))))
 
 (test number--
   "Test `-` on numbers."
 
-  (is (= (- 3 4) -1))
-  (is (= (- 3) -3))
-  (is (= (- 4) -4))
-  (is (= (- 5 4 3) -2)))
+  (is (= -1 (- 3 4)))
+  (is (= -3 (- 3)))
+  (is (= -4 (- 4)))
+  (is (= -2 (- 5 4 3))))
 
 (test number-*
   "Test `*` on numbers."
 
-  (is (= (* 2 4) 8))
-  (is (= (*) 1))
-  (is (= (* 3) 3))
-  (is (= (* 2 3 4 5) 120)))
+  (is (= 8 (* 2 4)))
+  (is (= 1 (*)))
+  (is (= 3 (* 3)))
+  (is (= 120 (* 2 3 4 5))))
 
 (test number-/
   "Test `/` on numbers."
 
-  (is (= (/ 6 3) 2))
-  (is (= (/ 5 4) 5/4))
-  (is (= (/ 5) 1/5))
-  (is (= (/ 6 3 2) 1)))
+  (is (= 2 (/ 6 3)))
+  (is (= 5/4 (/ 5 4)))
+  (is (= 1/5 (/ 5)))
+  (is (= 1 (/ 6 3 2))))
 
 ;;;; Random Input
 
@@ -62,7 +62,7 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (+ a b) (cl:+ a b)))
+    (is (= (cl:+ a b) (+ a b)))
     (is (= (+ a b) (+ b a)))))
 
 (test random-number--
@@ -71,7 +71,7 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (- a b) (cl:- a b)))
+    (is (= (cl:- a b) (- a b)))
     (is (= (- a b) (- (- b a))))))
 
 (test random-number-*
@@ -80,7 +80,7 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (* a b) (cl:* a b)))
+    (is (= (cl:* a b) (* a b)))
     (is (= (* a b) (* b a)))))
 
 (test random-number-/
@@ -89,7 +89,7 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (/ a b) (cl:/ a b)))))
+    (is (= (cl:/ a b) (/ a b)))))
 
 
 ;;; Characters
@@ -98,51 +98,57 @@
   "Test `+` on characters."
 
   (is (char=
-       (+ #\a #\x)
        (code-char
         (cl:+ (char-code #\a)
-              (char-code #\x)))))
+              (char-code #\x)))
 
-  (is (char= (+ #\z) #\z))
+       (+ #\a #\x)))
+
+  (is (char= #\z (+ #\z)))
 
   (is (char=
-       (+ #\a #\5 #\t)
        (code-char
         (cl:+ (char-code #\a)
               (char-code #\5)
-              (char-code #\t)))))
+              (char-code #\t)))
+
+       (+ #\a #\5 #\t)))
 
   ;; Unicode
 
   (is (char=
-       (+ (code-char #x95)
-          (code-char #x101))
        (code-char
-        (cl:+ #x95 #x101)))))
+        (cl:+ #x95 #x101))
+
+       (+ (code-char #x95)
+          (code-char #x101)))))
 
 (test character--
   "Test `-` on characters."
 
   (is (char=
-       (- #\x #\a)
        (code-char
         (cl:- (char-code #\x)
-              (char-code #\a)))))
+              (char-code #\a)))
+
+       (- #\x #\a)))
 
   (is (char=
-       (- #\t #\5 (code-char 1))
        (code-char
         (cl:- (char-code #\t)
               (char-code #\5)
-              1))))
+              1))
+
+       (- #\t #\5 (code-char 1))))
 
   ;; Unicode
 
   (is (char=
-       (- (code-char #x101)
-          (code-char #x95))
        (code-char
-        (cl:- #x101 #x95)))))
+        (cl:- #x101 #x95))
+
+       (- (code-char #x101)
+          (code-char #x95)))))
 
 
 ;;; Different Types

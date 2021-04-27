@@ -55,8 +55,8 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (eq (= a b)
-            (cl:= a b)))
+    (is (eq (cl:= a b)
+            (= a b)))
 
     (is (eq (= b a) (= a b)))))
 
@@ -66,8 +66,8 @@
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (eq (/= a b)
-            (cl:/= a b)))
+    (is (eq (cl:/= a b)
+            (/= a b)))
 
     (is (eq (/= b a) (/= a b)))))
 
@@ -90,8 +90,8 @@
   (for-all ((a (gen-character))
             (b (gen-character)))
 
-    (is (eq (= a b)
-            (cl:char= a b)))
+    (is (eq (cl:char= a b)
+            (= a b)))
 
     (is (eq (= b a) (= a b)))))
 
@@ -110,8 +110,8 @@
   (for-all ((a (gen-character))
             (b (gen-character)))
 
-    (is (eq (/= a b)
-            (cl:char/= a b)))
+    (is (eq (cl:char/= a b)
+            (/= a b)))
 
     (is (eq (/= b a) (/= a b)))))
 
@@ -231,8 +231,8 @@
             (s2 (gen-string)))
 
     (is (not
-         (xor (= s1 s2)
-              (string= s1 s2))))))
+         (xor (string= s1 s2)
+              (= s1 s2))))))
 
 (test string-/=
   "Test `/=` on strings"
@@ -252,8 +252,8 @@
             (s2 (gen-string)))
 
     (is (not
-         (xor (/= s1 s2)
-              (string/= s1 s2))))))
+         (xor (string/= s1 s2)
+              (/= s1 s2))))))
 
 ;;; Hash-Tables
 
