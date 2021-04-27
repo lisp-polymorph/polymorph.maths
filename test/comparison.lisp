@@ -9,8 +9,8 @@
     #:+ #:- #:* #:/
     #:min #:max)
 
-  (:import-from :adhoc-polymorphic-functions
-                :no-applicable-polymorph))
+  (:import-from #:adhoc-polymorphic-functions
+                #:no-applicable-polymorph))
 
 (in-package #:polymorph.maths/test.equality)
 
