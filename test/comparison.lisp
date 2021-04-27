@@ -6,7 +6,8 @@
    #:polymorph.maths
     #:= #:/=
     #:< #:<= #:> #:>=
-    #:+ #:- #:* #:/)
+    #:+ #:- #:* #:/
+    #:min #:max)
 
   (:import-from :adhoc-polymorphic-functions
                 :no-applicable-polymorph))
@@ -92,6 +93,23 @@
   (is (not (>= 0 90)))
   (is (not (>= 3 4 2 1))))
 
+(test number-min
+  "Test MIN on numbers"
+
+  (is-every cl:=
+    (0 (min 1 3 5 0 2))
+    (1.5 (min 1.5 10 34/2 100.12))
+    (1 (min 1))))
+
+(test number-max
+  "Test MAX on numbers"
+
+  (is-every cl:=
+    (5 (max 1 3 5 0 2))
+    (200 (max 1.5 10 34/2 100.12 200))
+    (4 (max 4))))
+
+
 ;;;; Random Numbers
 
 (test random-number-<
@@ -130,6 +148,24 @@
     (is (eq (>= a b)
             (cl:>= a b)))))
 
+(test random-number-min
+  "Test MIN on random numbers"
+
+  (for-all ((a (gen-integer))
+            (b (gen-integer)))
+
+    (is (cl:= (cl:min a b)
+              (min a b)))))
+
+(test random-number-max
+  "Test MAX on random numbers"
+
+  (for-all ((a (gen-integer))
+            (b (gen-integer)))
+
+    (is (cl:= (cl:max a b)
+              (max a b)))))
+
 
 ;;;; Characters
 
@@ -166,6 +202,22 @@
   (is (>= #\x #\f))
   (is (>= #\r #\r))
   (is (not (>= #\b #\f))))
+
+(test character-min
+  "Test MIN on characters"
+
+  (is-every char=
+    (#\a (min #\a #\b #\z #\d))
+    (#\x (min #\z #\x #\y))
+    (#\c (min #\c))))
+
+(test character-max
+  "Test MAX on characters"
+
+  (is-every char=
+    (#\x (max #\a #\b #\x #\d))
+    (#\z (max #\z #\x #\y))
+    (#\c (max #\c))))
 
 ;;;; Random Characters
 
@@ -243,6 +295,25 @@
   (is (>= "aab" "aaa"))
   (is (>= "aaa" "aaa"))
   (is (not (>= "aaa" "aab"))))
+
+(test string-min
+  "Test MIN on strings"
+
+  (is-every string=
+    ("abc" (min "def" "abc" "xyz"))
+    ("hello" (min "hello" "hello world"))
+    ("bye" (min "bye" "hello"))
+    ("string" (min "string"))))
+
+(test string-max
+  "Test MAX on strings"
+
+  (is-every string=
+    ("xyz" (max "def" "abc" "xyz"))
+    ("hello world" (max "hello" "hello world"))
+    ("hello" (max "bye" "hello"))
+    ("string" (max "string"))))
+
 
 ;;;; Random Strings
 
