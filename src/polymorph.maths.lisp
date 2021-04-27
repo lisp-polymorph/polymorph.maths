@@ -94,7 +94,6 @@
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
-    (print env)
     ;(%check-container-elem-applicable elt1 elt2 #'=)
     (unless (equalp dim1 dim2)
       (warn "Arrays dimensions are not known to be compatbile"))

@@ -241,7 +241,7 @@
     (#\x (min #\z #\x #\y))
     (#\c (min #\c))
     (#\b (min #\x (char (make-string 4 :initial-element #\b) 2)))
-    (#\c (min #\d (aref (make-array :element-type 'character :initial-contents '(#\a #\b #\c) 2))))))
+    (#\c (min #\d (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 2)))))
 
 (test character-max
   "Test MAX on characters"
@@ -249,9 +249,9 @@
   (is-every char=
     (#\x (max #\a #\b #\x #\d))
     (#\z (max #\z #\x #\y))
-    (#\c (max #\c)
+    (#\c (max #\c))
     (#\x (max #\x (char (make-string 4 :initial-element #\b) 2)))
-    (#\f (max #\d (aref (make-array :element-type 'character :initial-contents '(#\a #\b #\f) 2)))))))
+    (#\f (max #\d (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\f)) 2)))))
 
 ;;;; Random Characters
 
