@@ -114,6 +114,18 @@
 
        (+ #\a #\5 #\t)))
 
+  (is (char=
+       (code-char
+        (cl:+ (char-code #\x) (char-code #\z)))
+
+       (+ #\z (char (make-string 5 :initial-element #\x) 3))))
+
+  (is (char=
+       (code-char
+        (cl:+ (char-code #\a) (char-code #\b)))
+
+       (+ #\a (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 1))))
+
   ;; Unicode
 
   (is (char=
@@ -140,6 +152,18 @@
               1))
 
        (- #\t #\5 (code-char 1))))
+
+  (is (char=
+       (code-char
+        (cl:- (char-code #\z) (char-code #\x)))
+
+       (- #\z (char (make-string 5 :initial-element #\x) 3))))
+
+  (is (char=
+       (code-char
+        (cl:- (char-code #\b) (char-code #\a)))
+
+       (- (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 1) #\a)))
 
   ;; Unicode
 
