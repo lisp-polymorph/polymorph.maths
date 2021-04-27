@@ -239,7 +239,9 @@
   (is-every char=
     (#\a (min #\a #\b #\z #\d))
     (#\x (min #\z #\x #\y))
-    (#\c (min #\c))))
+    (#\c (min #\c))
+    (#\b (min #\x (char (make-string 4 :initial-element #\b) 2)))
+    (#\c (min #\d (aref (make-array :element-type 'character :initial-contents '(#\a #\b #\c) 2))))))
 
 (test character-max
   "Test MAX on characters"
@@ -247,7 +249,9 @@
   (is-every char=
     (#\x (max #\a #\b #\x #\d))
     (#\z (max #\z #\x #\y))
-    (#\c (max #\c))))
+    (#\c (max #\c)
+    (#\x (max #\x (char (make-string 4 :initial-element #\b) 2)))
+    (#\f (max #\d (aref (make-array :element-type 'character :initial-contents '(#\a #\b #\f) 2)))))))
 
 ;;;; Random Characters
 
@@ -354,7 +358,9 @@
     ("abc" (min "def" "abc" "xyz"))
     ("hello" (min "hello" "hello world"))
     ("bye" (min "bye" "hello"))
-    ("string" (min "string"))))
+    ("string" (min "string"))
+    ("aaa" (min "abc" (make-string 3 :initial-element #\a)))
+    ("def" (min "def" (make-array 4 :element-type 'character :initial-contents '(#\d #\e #\f #\g))))))
 
 (test string-max
   "Test MAX on strings"
@@ -363,7 +369,9 @@
     ("xyz" (max "def" "abc" "xyz"))
     ("hello world" (max "hello" "hello world"))
     ("hello" (max "bye" "hello"))
-    ("string" (max "string"))))
+    ("string" (max "string"))
+    ("abc" (max "abc" (make-string 3 :initial-element #\a)))
+    ("defg" (max "def" (make-array 4 :element-type 'character :initial-contents '(#\d #\e #\f #\g))))))
 
 
 ;;;; Random Strings
