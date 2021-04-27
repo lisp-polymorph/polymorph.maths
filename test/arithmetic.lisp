@@ -7,8 +7,8 @@
    #:< #:<= #:> #:>=
    #:+ #:- #:* #:/)
 
-  (:import-from :adhoc-polymorphic-functions
-                :no-applicable-polymorph))
+  (:import-from #:adhoc-polymorphic-functions
+                #:no-applicable-polymorph))
 
 (in-package #:polymorph.maths/test.arithmetic)
 
@@ -23,139 +23,169 @@
 ;;; Numbers
 
 (test number-+
-  :description "Test `+` on numbers."
+  "Test `+` on numbers."
 
-  (is (= (+ 1 2) 3))
-  (is (= (+) 0))
-  (is (= (+ 2) 2))
-  (is (= (+ 1 2 3 4) 10)))
+  (is (= 3 (+ 1 2)))
+  (is (= 0 (+)))
+  (is (= 2 (+ 2)))
+  (is (= 10 (+ 1 2 3 4))))
 
 (test number--
-  :description "Test `-` on numbers."
+  "Test `-` on numbers."
 
-  (is (= (- 3 4) -1))
-  (is (= (- 3) -3))
-  (is (= (- 4) -4))
-  (is (= (- 5 4 3) -2)))
+  (is (= -1 (- 3 4)))
+  (is (= -3 (- 3)))
+  (is (= -4 (- 4)))
+  (is (= -2 (- 5 4 3))))
 
 (test number-*
-  :description "Test `*` on numbers."
+  "Test `*` on numbers."
 
-  (is (= (* 2 4) 8))
-  (is (= (*) 1))
-  (is (= (* 3) 3))
-  (is (= (* 2 3 4 5) 120)))
+  (is (= 8 (* 2 4)))
+  (is (= 1 (*)))
+  (is (= 3 (* 3)))
+  (is (= 120 (* 2 3 4 5))))
 
 (test number-/
-  :description "Test `/` on numbers."
+  "Test `/` on numbers."
 
-  (is (= (/ 6 3) 2))
-  (is (= (/ 5 4) 5/4))
-  (is (= (/ 5) 1/5))
-  (is (= (/ 6 3 2) 1)))
+  (is (= 2 (/ 6 3)))
+  (is (= 5/4 (/ 5 4)))
+  (is (= 1/5 (/ 5)))
+  (is (= 1 (/ 6 3 2))))
 
 ;;;; Random Input
 
 (test random-number-+
-  :description "Test `+` on random numbers."
+  "Test `+` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (+ a b) (cl:+ a b)))
+    (is (= (cl:+ a b) (+ a b)))
     (is (= (+ a b) (+ b a)))))
 
 (test random-number--
-  :description "Test `-` on random numbers."
+  "Test `-` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (- a b) (cl:- a b)))
+    (is (= (cl:- a b) (- a b)))
     (is (= (- a b) (- (- b a))))))
 
 (test random-number-*
-  :description "Test `*` on random numbers."
+  "Test `*` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (* a b) (cl:* a b)))
+    (is (= (cl:* a b) (* a b)))
     (is (= (* a b) (* b a)))))
 
 (test random-number-/
-  :description "Test `/` on random numbers."
+  "Test `/` on random numbers."
 
   (for-all ((a (gen-integer))
             (b (gen-integer)))
 
-    (is (= (/ a b) (cl:/ a b)))))
+    (is (= (cl:/ a b) (/ a b)))))
 
 
 ;;; Characters
 
 (test character-+
-  :description "Test `+` on characters."
+  "Test `+` on characters."
 
   (is (char=
-       (+ #\a #\x)
        (code-char
         (cl:+ (char-code #\a)
-              (char-code #\x)))))
+              (char-code #\x)))
 
-  (is (char= (+ #\z) #\z))
+       (+ #\a #\x)))
+
+  (is (char= #\z (+ #\z)))
 
   (is (char=
-       (+ #\a #\5 #\t)
        (code-char
         (cl:+ (char-code #\a)
               (char-code #\5)
-              (char-code #\t)))))
+              (char-code #\t)))
+
+       (+ #\a #\5 #\t)))
+
+  (is (char=
+       (code-char
+        (cl:+ (char-code #\x) (char-code #\z)))
+
+       (+ #\z (char (make-string 5 :initial-element #\x) 3))))
+
+  (is (char=
+       (code-char
+        (cl:+ (char-code #\a) (char-code #\b)))
+
+       (+ #\a (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 1))))
 
   ;; Unicode
 
   (is (char=
-       (+ (code-char #x95)
-          (code-char #x101))
        (code-char
-        (cl:+ #x95 #x101)))))
+        (cl:+ #x95 #x101))
+
+       (+ (code-char #x95)
+          (code-char #x101)))))
 
 (test character--
-  :description "Test `-` on characters."
+  "Test `-` on characters."
 
   (is (char=
-       (- #\x #\a)
        (code-char
         (cl:- (char-code #\x)
-              (char-code #\a)))))
+              (char-code #\a)))
+
+       (- #\x #\a)))
 
   (is (char=
-       (- #\t #\5 (code-char 1))
        (code-char
         (cl:- (char-code #\t)
               (char-code #\5)
-              1))))
+              1))
+
+       (- #\t #\5 (code-char 1))))
+
+  (is (char=
+       (code-char
+        (cl:- (char-code #\z) (char-code #\x)))
+
+       (- #\z (char (make-string 5 :initial-element #\x) 3))))
+
+  (is (char=
+       (code-char
+        (cl:- (char-code #\b) (char-code #\a)))
+
+       (- (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 1) #\a)))
 
   ;; Unicode
 
   (is (char=
-       (- (code-char #x101)
-          (code-char #x95))
        (code-char
-        (cl:- #x101 #x95)))))
+        (cl:- #x101 #x95))
+
+       (- (code-char #x101)
+          (code-char #x95)))))
 
 
 ;;; Different Types
 
 (test different-types-+
-  :description "Test that `+` signals condition on arguments of different types."
+  "Test that `+` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (+ 1 'x))
   (signals no-applicable-polymorph (+ 1 #\c))
   (signals no-applicable-polymorph (+ "a" "b")))
 
 (test different-types--
-  :description "Test that `-` signals condition on arguments of different types."
+  "Test that `-` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (- 3 "z"))
   (signals no-applicable-polymorph (- 3 #\c))
@@ -163,14 +193,14 @@
   (signals no-applicable-polymorph (- 'x)))
 
 (test different-types-*
-  :description "Test that `*` signals condition on arguments of different types."
+  "Test that `*` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (* 4 #\a))
   (signals no-applicable-polymorph (* 10 'x10))
   (signals no-applicable-polymorph (* "5" "6")))
 
 (test different-types-/
-  :description "Test that `/` signals condition on arguments of different types."
+  "Test that `/` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (/ 'a 'b))
   (signals no-applicable-polymorph (/ 3 #\2))
