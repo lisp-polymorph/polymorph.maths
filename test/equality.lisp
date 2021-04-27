@@ -79,7 +79,12 @@
 
   (is (= #\a #\a))
   (is (= #\0 #\0))
+  (is (= #\b (char (make-string 5 :initial-element #\b) 3)))
+  (is (= #\y (aref (make-array 3 :element-type 'character :initial-contents '(#\x #\y #\z)) 1)))
+
   (is (not (= #\a #\A)))
+  (is (not (= #\x (char (make-string 5 :initial-element #\b) 3))))
+  (is (not (= #\z (aref (make-array 3 :element-type 'character :initial-contents '(#\x #\y #\z)) 1))))
 
   (is (= #\a #\a #\a))
   (is (not (= #\a #\A 'a))))
@@ -100,9 +105,13 @@
 
   (is (/= #\a #\A))
   (is (/= #\x #\y))
+  (is (/= #\x (char (make-string 5 :initial-element #\b) 3)))
+  (is (/= #\z (aref (make-array 3 :element-type 'character :initial-contents '(#\x #\y #\z)) 1)))
   (is (/= #\d #\d #\e))
 
-  (is (not (/= #\a #\a #\a))))
+  (is (not (/= #\a #\a #\a)))
+  (is (not (/= #\b (char (make-string 5 :initial-element #\b) 3))))
+  (is (not (/= #\y (aref (make-array 3 :element-type 'character :initial-contents '(#\x #\y #\z)) 1)))))
 
 (test random-character-/=
   "Test `/=` on random characters"
@@ -219,10 +228,13 @@
   (is (= "Hello" "Hello"))
   (is (= "World" (string '|World|)))
   (is (= "AAA" (make-string 3 :initial-element #\A)))
+  (is (= "abc" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c))))
   (is (= "hello" (vector #\h #\e #\l #\l #\o)))
 
   (is (not (= "hello" "Hello")))
-  (is (not (= "world" "worlds"))))
+  (is (not (= "world" "worlds")))
+  (is (not (= "aaa" (make-string 3 :initial-element #\A))))
+  (is (not (= "cba" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c))))))
 
 (test random-string-=
   "Test `=` on random strings"
@@ -241,9 +253,13 @@
   (is (not (/= "World" (string '|World|))))
   (is (not (/= "AAA" (make-string 3 :initial-element #\A))))
   (is (not (/= "hello" (vector #\h #\e #\l #\l #\o))))
+  (is (not (/= "abc" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)))))
+  (is (not (/= "hello" (vector #\h #\e #\l #\l #\o))))
 
   (is (/= "hello" "Hello"))
-  (is (/= "world" "worlds")))
+  (is (/= "world" "worlds"))
+  (is (/= "aaa" (make-string 3 :initial-element #\A)))
+  (is (/= "cba" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)))))
 
 (test random-string-/=
   "Test `/=` on random strings"
