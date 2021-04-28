@@ -459,7 +459,7 @@
   a)
 
 (defpolymorph max ((first t) (second t)) t
-  (if (< second first) first second))
+  (if (< first second) second first))
 (defpolymorph min ((first t) (second t)) t
   (if (not (< second first)) first second))
 
@@ -471,7 +471,7 @@
     `(let ((,name1 ,first)
            (,name2 ,second))
        (declare (type ,type1 ,name1) (type ,type2 ,name2))
-       (if (< ,name2 ,name1) ,name1 ,name2))))
+       (if (< ,name1 ,name2) ,name2 ,name1))))
 
 (defpolymorph-compiler-macro min (t t) (first second &environment env)
   (let ((type1 (%form-type first env))
@@ -485,7 +485,7 @@
 
 
 (defpolymorph (max :inline t) ((first t) (second t) (third t) &rest xs) t
-  (cl:reduce #'max xs :initial-value (max (max first second) third)))
+  (cl:reduce #'max xs :initial-value (max first (max second third))))
 
 (defpolymorph-compiler-macro max (t t t &rest) (&whole form first second third &rest xs
                                                        &environment env)
@@ -493,12 +493,21 @@
              (if ls
                  (genmax (cdr ls) `(max ,done ,(car ls)))
                  done)))
-    (if (constantp (length xs) env)
-        (genmax xs `(max (max ,first ,second) ,third))
-        form)))
+    (let* ((nonconst (remove-if (lambda (x) (constantp x env))
+                                (cons first (cons second (cons third xs)))))
+           (const (remove-if (lambda (x) (not (constantp x env)))
+                             (cons first (cons second (cons third xs)))))
+           (full (append const nonconst))
+           (first (first full))
+           (second (second full))
+           (third (third full))
+           (xs (cdddr full)))
+      (if (constantp (length xs) env)
+          (genmax xs `(max ,first (max ,second ,third)))
+          form))))
 
 (defpolymorph (min :inline t) ((first t) (second t) (third t) &rest xs) t
-  (cl:reduce #'min xs :initial-value (min (min first second) third)))
+  (cl:reduce #'min xs :initial-value (min first (min second third))))
 
 (defpolymorph-compiler-macro min (t t t &rest) (&whole form first second third &rest xs
                                                        &environment env)
@@ -506,9 +515,18 @@
              (if ls
                  (genmin (cdr ls) `(min ,done ,(car ls)))
                  done)))
-    (if (constantp (length xs) env)
-        (genmin xs `(min (min ,first ,second) ,third))
-        form)))
+    (let* ((nonconst (remove-if (lambda (x) (constantp x env))
+                                (cons first (cons second (cons third xs)))))
+           (const (remove-if (lambda (x) (not (constantp x env)))
+                             (cons first (cons second (cons third xs)))))
+           (full (append const nonconst))
+           (first (first full))
+           (second (second full))
+           (third (third full))
+           (xs (cdddr full)))
+      (if (constantp (length xs) env)
+          (genmin xs `(min ,first (min ,second ,third)))
+          form))))
 
 
 
