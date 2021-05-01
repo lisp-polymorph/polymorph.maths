@@ -2,28 +2,28 @@
 
 (in-package #:polymorph.maths)
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun %form-type (form &optional env)
+    (if (constantp form env)
+        (let ((val (eval form))) ;;need custom eval that defaults to sb-ext:eval-in-lexenv here)
+          (if (typep val '(or number character symbol))
+              (values `(eql ,val) t)
+              (values (type-of val) t)))
+        (adhoc-polymorphic-functions::form-type form env)))
 
-(defun %form-type (form &optional env)
-  (if (constantp form env)
-      (let ((val (eval form))) ;;need custom eval that defaults to sb-ext:eval-in-lexenv here)
-        (if (typep val '(or number character symbol))
-            (values `(eql ,val) t)
-            (values (type-of val) t)))
-      (adhoc-polymorphic-functions::form-type form env)))
+  (deftype ind () `(integer 0 #.array-dimension-limit))
 
-(deftype ind () `(integer 0 #.array-dimension-limit))
-
-(defun %check-container-elem-applicable (elem-type1 elem-type2 fn &optional env)
-  (let ((all (adhoc-polymorphic-functions::polymorphic-function-type-lists fn)))
-    (unless (find (list elem-type1 elem-type2)
-                  all
-                  :test (lambda (given existing)
-                          (destructuring-bind (gfst gsnd) given
-                            (destructuring-bind (efst esnd) existing
-                              (and (subtypep gfst efst env)
-                                 (subtypep gsnd esnd env))))))
-      (error "Types ~s and ~s are incompatbile in terms of function ~s~%"
-               elem-type1 elem-type2 fn))))
+  (defun %check-container-elem-applicable (elem-type1 elem-type2 fn &optional env)
+    (let ((all (adhoc-polymorphic-functions::polymorphic-function-type-lists fn)))
+      (unless (find (list elem-type1 elem-type2)
+                    all
+                    :test (lambda (given existing)
+                            (destructuring-bind (gfst gsnd) given
+                              (destructuring-bind (efst esnd) existing
+                                (and (subtypep gfst efst env)
+                                   (subtypep gsnd esnd env))))))
+        (error "Types ~s and ~s are incompatbile in terms of function ~s~%"
+               elem-type1 elem-type2 fn)))))
 ;;TODO This one ^ is BAD, so i gotta rewrite it. Don't use anywhere for now
 
 
