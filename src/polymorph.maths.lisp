@@ -174,16 +174,17 @@
 
 
 (defpolymorph (= :inline t) ((first t) (second t)) (values boolean &optional)
-    (declare (ignorable first second))
-    nil)
+  (declare (ignorable first second))
+  (warn "Different types equality defaults to nil")
+  nil)
 
-(defpolymorph-compiler-macro = (t t) (first second &environment env)
-                             (let* ((type1        (%form-type first env))
-                                    (type2        (%form-type second env)))
-                               (unless (or (subtypep type1 type2 env)
-                                          (subtypep type1 type2 env))
-                                 (warn "Different types equality defaults to nil"))
-                               nil))
+(defpolymorph-compiler-macro = (t t) (&whole form first second &environment env)
+  (let* ((type1        (%form-type first env))
+         (type2        (%form-type second env)))
+    (unless (or (subtypep type1 type2 env)
+               (subtypep type1 type2 env))
+      (warn "Different types equality defaults to nil"))
+    form))
 
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)

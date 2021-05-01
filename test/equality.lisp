@@ -137,6 +137,7 @@
   (is (= '("abc" "def") (list "abc" "def")))
   (is (= nil (cdr (list '1))))
   (is (= '(5 6 . 3) '(5.0 6 . 3.0)))
+  (is (= (make-list 100) (make-list 100)))
 
   (is (not (= '(1 2 3) '(1 2 1))))
   (is (not (= '(1 2 3) '(1 2)))))
