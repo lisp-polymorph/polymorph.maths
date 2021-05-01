@@ -27,6 +27,7 @@
 ;;TODO This one ^ is BAD, so i gotta rewrite it. Don't use anywhere for now
 
 (define-symbol-macro * cl:*)
+(define-symbol-macro + cl:+)
 
 ;; Equality
 (define-polymorphic-function = (object &rest objects) :overwrite t
