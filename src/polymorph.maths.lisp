@@ -11,20 +11,7 @@
               (values (type-of val) t)))
         (trivial-form-type:primary-form-type form env)))
 
-  (deftype ind () `(integer 0 #.array-dimension-limit))
-
-  (defun %check-container-elem-applicable (elem-type1 elem-type2 fn &optional env)
-    (let ((all (adhoc-polymorphic-functions::polymorphic-function-type-lists fn)))
-      (unless (find (list elem-type1 elem-type2)
-                    all
-                    :test (lambda (given existing)
-                            (destructuring-bind (gfst gsnd) given
-                              (destructuring-bind (efst esnd) existing
-                                (and (subtypep gfst efst env)
-                                   (subtypep gsnd esnd env))))))
-        (error "Types ~s and ~s are incompatbile in terms of function ~s~%"
-               elem-type1 elem-type2 fn)))))
-;;TODO This one ^ is BAD, so i gotta rewrite it. Don't use anywhere for now
+  (deftype ind () `(integer 0 #.array-dimension-limit)))
 
 (define-symbol-macro * cl:*)
 (define-symbol-macro + cl:+)
