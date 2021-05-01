@@ -96,16 +96,12 @@
                         `(equal (array-dimensions ,first) (array-dimensions ,second)))))
     (unless (equalp dim1 dim2)
       (warn "Arrays dimensions are not known to be compatbile"))
-    (if (and (subtypep elt1 '(or number character symbol) env)
-           (subtypep elt2 '(or number character symbol) env)
-           (or (subtypep elt1 elt2 env) (subtypep elt2 elt1 env)))
-        `(equalp ,first ,second)
-        (once-only (first second)
-                   `(and
-                     ,dim-check
-                     (loop :for ,i :of-type ind :below ,size1
-                           :always (= (the ,elt1 (row-major-aref ,first ,i))
-                                      (the ,elt2 (row-major-aref ,second ,i)))))))))
+    (once-only (first second)
+               `(and
+                 ,dim-check
+                 (loop :for ,i :of-type ind :below ,size1
+                       :always (= (the ,elt1 (row-major-aref ,first ,i))
+                                  (the ,elt2 (row-major-aref ,second ,i))))))))
 
 
 (defpolymorph (= :inline t) ((first (and vector (not simple-array)))
@@ -130,19 +126,14 @@
          (s1 (gensym))
          (s2 (gensym))
          (i (gensym)))
-    ;(%check-container-elem-applicable elt1 elt2 #'=)
-    (if (and (subtypep elt1 '(or number character symbol) env)
-           (subtypep elt2 '(or number character symbol) env)
-           (or (subtypep elt1 elt2 env) (subtypep elt2 elt1 env)))
-        `(equalp ,first ,second)
-        (once-only (first second)
-                   `(let ((,s1 (length ,first))
-                          (,s2 (length ,second)))
-                      (and (cl:= ,s1 ,s2)
-                         (cl:= (fill-pointer ,first) (fill-pointer ,second))
-                         (loop :for ,i :of-type ind :below ,s1
-                               :always (= (the ,elt1 (aref ,first ,i))
-                                          (the ,elt2 (aref ,second ,i))))))))))
+    (once-only (first second)
+               `(let ((,s1 (length ,first))
+                      (,s2 (length ,second)))
+                  (and (cl:= ,s1 ,s2)
+                     (cl:= (fill-pointer ,first) (fill-pointer ,second))
+                     (loop :for ,i :of-type ind :below ,s1
+                           :always (= (the ,elt1 (aref ,first ,i))
+                                      (the ,elt2 (aref ,second ,i)))))))))
 
 
 
