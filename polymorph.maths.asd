@@ -6,7 +6,7 @@
     :license  "MIT"
     :version "1.0"
     :serial t
-    :depends-on (#:adhoc-polymorphic-functions #:compiler-macro)
+    :depends-on (#:adhoc-polymorphic-functions #:compiler-macro #:trivial-form-ctype)
     :components ((:module
                   "src"
                   :serial t

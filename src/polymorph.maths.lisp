@@ -9,7 +9,7 @@
           (if (typep val '(or number character symbol))
               (values `(eql ,val) t)
               (values (type-of val) t)))
-        (adhoc-polymorphic-functions::form-type form env)))
+        (trivial-form-type:primary-form-type form env)))
 
   (deftype ind () `(integer 0 #.array-dimension-limit))
 
@@ -26,7 +26,7 @@
                elem-type1 elem-type2 fn)))))
 ;;TODO This one ^ is BAD, so i gotta rewrite it. Don't use anywhere for now
 
-
+(define-symbol-macro * cl:*)
 
 ;; Equality
 (define-polymorphic-function = (object &rest objects) :overwrite t
@@ -86,24 +86,25 @@
                     ((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
                      (reduce (lambda (a b) `(cl:* ,a ,b)) dim1))
                     (t `(array-total-size ,first))))
-         (size2 (cond
-                    ((and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
-                     (reduce (lambda (a b) `(cl:* ,a ,b)) dim2))
-                    (t `(array-total-size ,second))))
-         (s1 (gensym))
-         (s2 (gensym))
-         (i (gensym)))
-    ;(%check-container-elem-applicable elt1 elt2 #'=)
+         (i (gensym))
+         (dim-check (if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                           (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
+                           (every (lambda (x) (numberp x)) dim1)
+                           (every (lambda (x) (numberp x)) dim2))
+                        (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
+                        `(equal (array-dimensions ,first) (array-dimensions ,second)))))
     (unless (equalp dim1 dim2)
       (warn "Arrays dimensions are not known to be compatbile"))
-    (once-only (first second)
-      `(let ((,s1 ,size1)
-             (,s2 ,size2))
-         (and (cl:= ,s1 ,s2)
-            (equal (array-dimensions ,first) (array-dimensions ,second))
-            (loop :for ,i :below ,s1
-                  :always (= (the ,elt1 (row-major-aref ,first ,i))
-                             (the ,elt2 (row-major-aref ,second ,i)))))))))
+    (if (and (subtypep elt1 '(or number character symbol) env)
+           (subtypep elt2 '(or number character symbol) env)
+           (or (subtypep elt1 elt2 env) (subtypep elt2 elt1 env)))
+        `(equalp ,first ,second)
+        (once-only (first second)
+                   `(and
+                     ,dim-check
+                     (loop :for ,i :below ,size1
+                           :always (= (the ,elt1 (row-major-aref ,first ,i))
+                                      (the ,elt2 (row-major-aref ,second ,i)))))))))
 
 
 (defpolymorph (= :inline t) ((first (and vector (not simple-array)))
@@ -113,7 +114,7 @@
         (s2 (length second)))
     (and (cl:= s1 s2)
        (cl:= (fill-pointer first) (fill-pointer second))
-       (loop :for i :below s1
+       (loop :for i :of-type (integer 0) :below s1
              :always (= (aref first i)
                         (aref second i))))))
 
@@ -129,14 +130,18 @@
          (s2 (gensym))
          (i (gensym)))
     ;(%check-container-elem-applicable elt1 elt2 #'=)
-    (once-only (first second)
-      `(let ((,s1 (length ,first))
-             (,s2 (length ,second)))
-         (and (cl:= ,s1 ,s2)
-            (cl:= (fill-pointer ,first) (fill-pointer ,second))
-            (loop :for ,i :below ,s1
-                  :always (= (the ,elt1 (aref ,first ,i))
-                             (the ,elt2 (aref ,second ,i)))))))))
+    (if (and (subtypep elt1 '(or number character symbol) env)
+           (subtypep elt2 '(or number character symbol) env)
+           (or (subtypep elt1 elt2 env) (subtypep elt2 elt1 env)))
+        `(equalp ,first ,second)
+        (once-only (first second)
+                   `(let ((,s1 (length ,first))
+                          (,s2 (length ,second)))
+                      (and (cl:= ,s1 ,s2)
+                         (cl:= (fill-pointer ,first) (fill-pointer ,second))
+                         (loop :for ,i :of-type (integer 0) :below ,s1
+                               :always (= (the ,elt1 (aref ,first ,i))
+                                          (the ,elt2 (aref ,second ,i))))))))))
 
 
 
@@ -159,7 +164,8 @@
    (and (eql type1 type2)
       (loop :for slot :in (mop:class-slots (find-class type1))
             :for name := (mop:slot-definition-name slot)
-            :always (= (slot-value first name) (slot-value second name))))))
+            :always (= (funcall (intern (format nil "~s-~s" type1 name)) first)
+                       (funcall (intern (format nil "~s-~s" type2 name)) second))))))
 
 (defpolymorph-compiler-macro = (structure-object structure-object)
     (first second &environment env)
@@ -167,22 +173,25 @@
          (type2        (%form-type second env)))
     (unless (eql type1 type2)
       (error "Structures of different types are never ="))
-   `(and
-     ,@(loop :for slot :in (mop:class-slots (find-class type1 t env))
-             :for name := (mop:slot-definition-name slot)
-             :for type := (mop:slot-definition-type slot)
-             :collect `(= (the ,type (slot-value ,first ',name))
-                          (the ,type (slot-value ,second ',name)))))))
+    `(and
+      ,@(loop :for slot :in (mop:class-slots (find-class type1 t env))
+              :for name := (mop:slot-definition-name slot)
+              :for type := (mop:slot-definition-type slot)
+              :collect `(= (the ,type (,(intern (format nil "~s-~s" type1 name)) ,first))
+                           (the ,type (,(intern (format nil "~s-~s" type2 name)) ,second)))))))
 
 
 (defpolymorph (= :inline t) ((first t) (second t)) (values boolean &optional)
     (declare (ignorable first second))
     nil)
 
-(defpolymorph-compiler-macro = (t t) (first second)
-    (declare (ignorable first second))
-    (warn "Different types equality defaults to nil")
-    nil)
+(defpolymorph-compiler-macro = (t t) (first second &environment env)
+                             (let* ((type1        (%form-type first env))
+                                    (type2        (%form-type second env)))
+                               (unless (or (subtypep type1 type2 env)
+                                          (subtypep type1 type2 env))
+                                 (warn "Different types equality defaults to nil"))
+                               nil))
 
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
