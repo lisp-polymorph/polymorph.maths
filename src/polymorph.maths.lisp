@@ -541,10 +541,10 @@
 (defpolymorph + ((a t)) t
   a)
 
-(defpolymorph + ((first number) (second number)) number
+(defpolymorph + ((first number) (second number)) (values number &optional)
   (cl:+ first second))
 
-(defpolymorph + ((first character) (second character)) character
+(defpolymorph + ((first character) (second character)) (values character &optional)
   (code-char (cl:+ (char-code first) (char-code second))))
 
 (defpolymorph (+ :inline t) ((first t) (second t) (third t) &rest xs) t
@@ -562,13 +562,13 @@
 
 (define-polymorphic-function - (x &rest xs) :overwrite t)
 
-(defpolymorph - ((a number)) number
+(defpolymorph - ((a number)) (values number &optional)
   (cl:- a))
 
-(defpolymorph - ((first number) (second number)) number
+(defpolymorph - ((first number) (second number)) (values number &optional)
   (cl:- first second))
 
-(defpolymorph - ((first character) (second character)) character
+(defpolymorph - ((first character) (second character)) (values character &optional)
   (code-char (cl:- (char-code first) (char-code second))))
 
 
@@ -595,7 +595,7 @@
 (defpolymorph * ((a t)) t
   a)
 
-(defpolymorph * ((first number) (second number)) number
+(defpolymorph * ((first number) (second number)) (values number &optional)
   (cl:* first second))
 
 (defpolymorph (* :inline t) ((first t) (second t) (third t) &rest xs) t
@@ -614,10 +614,11 @@
 
 (define-polymorphic-function / (x &rest xs) :overwrite t)
 
-(defpolymorph / ((a number)) number
+(defpolymorph / ((a number)) (values number &optional)
   (cl:/ a))
 
-(defpolymorph / ((first number) (second number)) number
+(defpolymorph / ((first number) (second number))
+  (values number &optional)
   (cl:/ first second))
 
 
