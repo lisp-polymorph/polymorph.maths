@@ -71,7 +71,7 @@
         (s2 (array-total-size second)))
     (and (cl:= s1 s2)
        (equal (array-dimensions first) (array-dimensions second))
-       (loop :for i :below s1
+       (loop :for i :of-type ind :below s1
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
 
@@ -102,7 +102,7 @@
         (once-only (first second)
                    `(and
                      ,dim-check
-                     (loop :for ,i :below ,size1
+                     (loop :for ,i :of-type ind :below ,size1
                            :always (= (the ,elt1 (row-major-aref ,first ,i))
                                       (the ,elt2 (row-major-aref ,second ,i)))))))))
 
@@ -114,7 +114,7 @@
         (s2 (length second)))
     (and (cl:= s1 s2)
        (cl:= (fill-pointer first) (fill-pointer second))
-       (loop :for i :of-type (integer 0) :below s1
+       (loop :for i :of-type ind :below s1
              :always (= (aref first i)
                         (aref second i))))))
 
@@ -139,7 +139,7 @@
                           (,s2 (length ,second)))
                       (and (cl:= ,s1 ,s2)
                          (cl:= (fill-pointer ,first) (fill-pointer ,second))
-                         (loop :for ,i :of-type (integer 0) :below ,s1
+                         (loop :for ,i :of-type ind :below ,s1
                                :always (= (the ,elt1 (aref ,first ,i))
                                           (the ,elt2 (aref ,second ,i))))))))))
 
