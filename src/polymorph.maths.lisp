@@ -2,17 +2,6 @@
 
 (in-package #:polymorph.maths)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun %form-type (form &optional env)
-    (if (constantp form env)
-        (let ((val (eval form))) ;;need custom eval that defaults to sb-ext:eval-in-lexenv here)
-          (if (typep val '(or number character symbol))
-              (values `(eql ,val) t)
-              (values (type-of val) t)))
-        (trivial-form-type:primary-form-type form env)))
-
-  (deftype ind () `(integer 0 #.array-dimension-limit)))
-
 (define-symbol-macro * cl:*)
 (define-symbol-macro + cl:+)
 
@@ -64,31 +53,27 @@
                         (row-major-aref second i))))))
 
 (defpolymorph-compiler-macro = (array array) (first second &environment env)
-  (let* ((type1 (%form-type first env))
-         (elt1  (cm:array-type-element-type type1))
-         (dim1  (cm:array-type-dimensions type1))
-         (type2 (%form-type second env))
-         (elt2  (cm:array-type-element-type type2))
-         (dim2  (cm:array-type-dimensions type2))
-         (size1 (cond
-                    ((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                     (reduce (lambda (a b) `(cl:* ,a ,b)) dim1))
-                    (t `(array-total-size ,first))))
-         (i (gensym))
-         (dim-check (if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                           (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
-                           (every (lambda (x) (numberp x)) dim1)
-                           (every (lambda (x) (numberp x)) dim2))
-                        (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
-                        `(equal (array-dimensions ,first) (array-dimensions ,second)))))
-    (unless (equalp dim1 dim2)
-      (warn "Arrays dimensions are not known to be compatbile"))
-    (once-only (first second)
-               `(and
-                 ,dim-check
-                 (loop :for ,i :of-type ind :below ,size1
-                       :always (= (the ,elt1 (row-major-aref ,first ,i))
-                                  (the ,elt2 (row-major-aref ,second ,i))))))))
+ (with-array-info (elt1 dim1) first env
+  (with-array-info (elt2 dim2) second env
+    (let ((size1 (cond
+                   ((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim1))
+                   (t `(array-total-size ,first))))
+          (i (gensym))
+          (dim-check (if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                            (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
+                            (every (lambda (x) (numberp x)) dim1)
+                            (every (lambda (x) (numberp x)) dim2))
+                         (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
+                         `(equal (array-dimensions ,first) (array-dimensions ,second)))))
+      (unless (equalp dim1 dim2)
+       (warn "Arrays dimensions are not known to be compatbile"))
+      (once-only (first second)
+                 `(and
+                   ,dim-check
+                   (loop :for ,i :of-type ind :below ,size1
+                         :always (= (the ,elt1 (row-major-aref ,first ,i))
+                                    (the ,elt2 (row-major-aref ,second ,i))))))))))
 
 
 (defpolymorph (= :inline t) ((first (and vector (not simple-array)))
