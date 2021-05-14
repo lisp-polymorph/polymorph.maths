@@ -14,6 +14,11 @@ Equality as checking if all supplied objects are clones of each other. Recursive
 ```
 Standart mathematical comparison. By default is defined by reals, chars and strings. Always return boolean. If only one object is supplied always return T. Supplying objects of incomparable types is an error.
 
+```common-lisp
+(define-polymorphic-function min (first &rest args))
+(define-polymorphic-function max (first &rest args))
+```
+Min and max, are based on < operator defined above.
 
 
 ```common-lisp
