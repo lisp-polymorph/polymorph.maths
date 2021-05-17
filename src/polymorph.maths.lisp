@@ -147,19 +147,19 @@
                            (the ,type (,(intern (format nil "~s-~s" type2 name)) ,second)))))))
 
 
-(defpolymorph (= :inline t) ((first t) (second t)) (values boolean &optional)
-  (declare (ignorable first second))
-  (warn "Different types equality defaults to nil")
-  nil)
-
-(defpolymorph-compiler-macro = (t t) (&whole form first second &environment env)
+(defpolymorph-compiler-macro = (t t) (first second &environment env)
   (let* ((type1        (%form-type first env))
-         (type2        (%form-type second env)))
-    (unless (or (subtypep type1 type2 env)
-               (subtypep type1 type2 env))
-      (warn "Different types equality defaults to nil"))
-    form))
-
+         (type2        (%form-type second env))
+         (intersect   `(and ,type1 ,type2)))
+    (if (subtypep intersect nil env)
+        (progn
+          (warn "Different types equality defaults to nil")
+          nil)
+        (once-only (first second)
+          `(if (and (typep ,first ',intersect)
+                  (typep ,second ',intersect))
+               (= (the ,intersect ,first) (the ,intersect ,second))
+               nil)))))
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (cl:reduce (lambda (a b) (and a (= b first)))
