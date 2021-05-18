@@ -36,8 +36,16 @@
 
 
 (defpolymorph (= :inline t) ((first cons) (second cons)) (values boolean &optional)
-              (and (= (car first) (car second))
-                 (= (cdr first) (cdr second))))
+  (and (= (car first) (car second))
+     (= (cdr first) (cdr second))))
+
+(defpolymorph (= :inline t) ((first cons) (second null)) (values boolean &optional)
+  (declare (ignorable first second))
+  nil)
+
+(defpolymorph (= :inline t) ((first null) (second cons)) (values boolean &optional)
+  (declare (ignorable first second))
+  nil)
 
 
 
