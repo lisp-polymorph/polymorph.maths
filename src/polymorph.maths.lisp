@@ -141,7 +141,8 @@
             :always (= (funcall (intern (format nil "~s-~s" type1 name)) first)
                        (funcall (intern (format nil "~s-~s" type2 name)) second))))))
 
-(defpolymorph-compiler-macro = (structure-object structure-object)
+#||
+(defpolymorph-compiler-macro = (structure-object structure-object) ;; FIXME
     (first second &environment env)
   (let* ((type1        (%form-type first env))
          (type2        (%form-type second env)))
@@ -153,7 +154,6 @@
               :for type := (mop:slot-definition-type slot)
               :collect `(= (the ,type (,(intern (format nil "~s-~s" type1 name)) ,first))
                            (the ,type (,(intern (format nil "~s-~s" type2 name)) ,second)))))))
-
 
 (defpolymorph-compiler-macro = (t t) (first second &environment env)
   (let* ((type1        (%form-type first env))
@@ -168,6 +168,7 @@
                   (typep ,second ',intersect))
                (= (the ,intersect ,first) (the ,intersect ,second))
                nil)))))
+||#
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
   (cl:reduce (lambda (a b) (and a (= b first)))

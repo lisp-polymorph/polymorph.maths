@@ -352,6 +352,7 @@
   (is (not (= '(1 2 3) '(1 2 . 3))))
   (is (not (= "hello" '|hello|))))
 
+#||
 (test different-types-/=
   "Test `/=` on non-compatible types"
 
@@ -360,3 +361,4 @@
   (is (/= #\a 'a))
   (is (/= #\a "a"))
   (is (/= #\a 'a "a")))
+||#
