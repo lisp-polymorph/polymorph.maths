@@ -356,9 +356,16 @@
 
 (defpolymorph (> :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
-  (flet ((%%> (a b)
-           (when (> a b) b)))
-    (not (not (and (> first second) (> second third) (cl:reduce #'%%> (cons third args)))))))
+  (not
+   (not (and (> first second)
+         (> second third)
+         (if (not args)
+             t
+             (loop :for (a b) :on (cons third args)
+                   :while b
+                   :always (> a b)))))))
+
+
 
 (defpolymorph-compiler-macro > (t t t &rest) (&whole form first second third &rest args
                                                      &environment env)
@@ -395,9 +402,14 @@
 
 (defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
-  (flet ((%%>= (a b)
-           (when (>= a b) b)))
-    (not (not (and (>= first second) (>= second third) (cl:reduce #'%%>= (cons third args)))))))
+  (not
+   (not (and (>= first second)
+         (>= second third)
+         (if (not args)
+             t
+             (loop :for (a b) :on (cons third args)
+                   :while b
+                   :always (>= a b)))))))
 
 
 (defpolymorph-compiler-macro >= (t t t &rest) (&whole form first second third &rest args
