@@ -64,16 +64,16 @@
  (with-array-info (elt1 dim1) first env
   (with-array-info (elt2 dim2) second env
     (let ((size1 (cond
-                   ((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                    (reduce (lambda (a b) `(cl:* ,a ,b)) dim1))
+                   ;((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                   ; (reduce (lambda (a b) `(cl:* ,a ,b)) dim1)
                    (t `(array-total-size ,first))))
           (i (gensym))
-          (dim-check (if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                            (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
-                            (every (lambda (x) (numberp x)) dim1)
-                            (every (lambda (x) (numberp x)) dim2))
-                         (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
-                         `(equal (array-dimensions ,first) (array-dimensions ,second)))))
+          (dim-check ;(if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                     ;       (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
+                     ;       (every (lambda (x) (numberp x)) dim1)
+                     ;       (every (lambda (x) (numberp x)) dim2)
+                     ;    (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
+                         `(equal (array-dimensions ,first) (array-dimensions ,second))))
       (unless (equalp dim1 dim2)
        (warn "Arrays dimensions are not known to be compatbile"))
       (once-only (first second)
@@ -104,9 +104,9 @@
      (let* ((s1 (gensym))
             (s2 (gensym))
             (i (gensym))
-            (check (if (and (constantp dim1 env) (constantp dim2 env))
-                       `(= ,dim1 ,dim2)
-                       `(= ,s1 ,s2))))
+            (check ;(if (and (constantp dim1 env) (constantp dim2 env))
+                   ;    `(= ,dim1 ,dim2)
+                       `(= ,s1 ,s2)))
        (once-only (first second)
          `(let ((,s1 (length ,first))
                 (,s2 (length ,second)))
@@ -272,9 +272,14 @@
 
 (defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
-  (flet ((%%< (a b)
-           (when (< a b) b)))
-    (not (not (and (< first second) (< second third) (cl:reduce #'%%< (cons third args)))))))
+  (not
+   (not (and (< first second)
+             (< second third)
+             (if (not args)
+                 t
+                 (loop :for (a b) :on (cons third args)
+                       :while b
+                       :always (< a b)))))))
 
 
 
@@ -313,9 +318,14 @@
 
 (defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
-  (flet ((%%<= (a b)
-           (when (<= a b) b)))
-    (not (not (and (<= first second) (<= second third) (cl:reduce #'%%<= (cons third args)))))))
+  (not
+   (not (and (<= first second)
+             (<= second third)
+             (if (not args)
+                 t
+                 (loop :for (a b) :on (cons third args)
+                       :while b
+                       :always (<= a b)))))))
 
 (defpolymorph-compiler-macro <= (t t t &rest) (&whole form first second third &rest args
                                                      &environment env)
@@ -358,12 +368,12 @@
     (values boolean &optional)
   (not
    (not (and (> first second)
-         (> second third)
-         (if (not args)
-             t
-             (loop :for (a b) :on (cons third args)
-                   :while b
-                   :always (> a b)))))))
+             (> second third)
+             (if (not args)
+                 t
+                 (loop :for (a b) :on (cons third args)
+                       :while b
+                       :always (> a b)))))))
 
 
 
