@@ -8,7 +8,7 @@
     #:< #:<= #:> #:>=
     #:+ #:- #:* #:/)
 
-  (:import-from #:adhoc-polymorphic-functions
+  (:import-from #:polymorphic-functions
                 #:no-applicable-polymorph))
 
 (in-package #:polymorph.maths/test.equality)
