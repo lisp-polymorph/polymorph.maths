@@ -644,18 +644,7 @@
 
 
 
-
-#||
-(deftype has-binops (&rest functions)
-  (let ((intersec))
-    (loop :for fn :in functions
-          :for lists := (mapcar #'adhoc-polymorphic-functions::polymorph-type-list
-                                (adhoc-polymorphic-functions::polymorphic-function-polymorphs
-                                 (fdefinition fn)))
-          :for res := (loop :for list :in lists
-                            :when (and (= 2 (length list))
-                                     (eql (first list) (second list)))
-                            :collect (first list))
-          :do (setf intersec (if intersec (intersection res intersec) res)))
-    `(or ,@intersec)))
-||#
+(define-modify-macro incf (&optional (num 1)) +)
+(define-modify-macro decf (&optional (num 1)) -)
+(define-modify-macro multf (&optional (num 1)) *)
+(define-modify-macro divf (&optional (num 1)) /)
