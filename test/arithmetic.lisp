@@ -5,7 +5,8 @@
   (:shadowing-import-from
    #:polymorph.maths
    #:< #:<= #:> #:>=
-   #:+ #:- #:* #:/)
+   #:+ #:- #:* #:/
+   #:incf #:decf #:multf #:divf)
 
   (:import-from #:polymorphic-functions
                 #:no-applicable-polymorph))
@@ -205,3 +206,46 @@
   (signals no-applicable-polymorph (/ 'a 'b))
   (signals no-applicable-polymorph (/ 3 #\2))
   (signals no-applicable-polymorph (/ "a" "b")))
+
+
+;;; INCF, DECF, MULTF and DIVF
+
+(test number-incf
+  "Test INCF on numbers"
+
+  (let ((x 2))
+    (is (= 3 (incf x)))
+    (is (= 3 x))
+
+    (is (= 7 (incf x 4)))
+    (is (= 7 x))))
+
+(test number-decf
+  "Test DECF on numbers"
+
+  (let ((x 6))
+    (is (= 5 (decf x)))
+    (is (= 5 x))
+
+    (is (= 2 (decf x 3)))
+    (is (= 2 x))))
+
+(test number-multf
+  "Test MULTF on numbers"
+
+  (let ((num 11))
+    (is (= 11 (multf num)))
+    (is (= 11 num))
+
+    (is (= 22 (multf num 2)))
+    (is (= 22 num))))
+
+(test number-divf
+  "Test DIVF on numbers"
+
+  (let ((num 55))
+    (is (= 55 (divf num)))
+    (is (= 55 num))
+
+    (is (= 11 (divf num 5)))
+    (is (= 11 num))))
