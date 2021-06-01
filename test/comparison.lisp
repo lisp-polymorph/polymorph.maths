@@ -27,7 +27,7 @@
 
 ;;;; Numbers
 
-(test number-<
+(test-optimize number-<
   "Test `<` on numbers"
 
   (is (< 1 2))
@@ -45,7 +45,7 @@
   (is (not (< 0.3 -3)))
   (is (not (< 2 3 5 4 6))))
 
-(test number->
+(test-optimize number->
   "Test `>` on numbers"
 
   (is (> 9 3))
@@ -63,7 +63,7 @@
   (is (not (> -8 1/6)))
   (is (not (> 5 4 1 2 3))))
 
-(test number-<=
+(test-optimize number-<=
   "Test `<=` on numbers"
 
   (is (<= 2 7))
@@ -78,7 +78,7 @@
   (is (not (<= 9 8)))
   (is (not (<= 1 2 4 3))))
 
-(test number->=
+(test-optimize number->=
   "Test `>=` on numbers"
 
   (is (>= 10 5))
@@ -93,7 +93,7 @@
   (is (not (>= 0 90)))
   (is (not (>= 3 4 2 1))))
 
-(test number-min
+(test-optimize number-min
   "Test MIN on numbers"
 
   (is-every cl:=
@@ -101,7 +101,7 @@
     (1.5 (min 1.5 10 34/2 100.12))
     (1 (min 1))))
 
-(test number-max
+(test-optimize number-max
   "Test MAX on numbers"
 
   (is-every cl:=
@@ -112,7 +112,7 @@
 
 ;;;; Random Numbers
 
-(test random-number-<
+(test-optimize random-number-<
   "Test `<` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -121,7 +121,7 @@
     (is (eq (cl:< a b)
             (< a b)))))
 
-(test random-number->
+(test-optimize random-number->
   "Test `>` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -130,7 +130,7 @@
     (is (eq (cl:> a b)
             (> a b)))))
 
-(test random-number-<=
+(test-optimize random-number-<=
   "Test `<=` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -139,7 +139,7 @@
     (is (eq (cl:<= a b)
             (<= a b)))))
 
-(test random-number->=
+(test-optimize random-number->=
   "Test `>=` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -148,7 +148,7 @@
     (is (eq (cl:>= a b)
             (>= a b)))))
 
-(test random-number-min
+(test-optimize random-number-min
   "Test MIN on random numbers"
 
   (for-all ((a (gen-integer))
@@ -157,7 +157,7 @@
     (is (cl:= (cl:min a b)
               (min a b)))))
 
-(test random-number-max
+(test-optimize random-number-max
   "Test MAX on random numbers"
 
   (for-all ((a (gen-integer))
@@ -169,7 +169,7 @@
 
 ;;;; Characters
 
-(test character-<
+(test-optimize character-<
   "Test `<` on characters"
 
   (is (< #\a #\b))
@@ -186,7 +186,7 @@
               #\d)))
   (is (not (< #\c #\d #\a))))
 
-(test character->
+(test-optimize character->
   "Test `>` on characters"
 
   (is (> #\x #\d))
@@ -203,7 +203,7 @@
               #\c)))
   (is (not (> #\d #\c #\x))))
 
-(test character-<=
+(test-optimize character-<=
   "Test `<=` on characters"
 
   (is (<= #\a #\z))
@@ -218,7 +218,7 @@
                #\c)))
   (is (not (<= #\x #\x #\g))))
 
-(test character->=
+(test-optimize character->=
   "Test `>=` on characters"
 
   (is (>= #\x #\f))
@@ -233,7 +233,7 @@
                #\c)))
   (is (not (>= #\x #\g #\h))))
 
-(test character-min
+(test-optimize character-min
   "Test MIN on characters"
 
   (is-every char=
@@ -243,7 +243,7 @@
     (#\b (min #\x (char (make-string 4 :initial-element #\b) 2)))
     (#\c (min #\d (aref (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)) 2)))))
 
-(test character-max
+(test-optimize character-max
   "Test MAX on characters"
 
   (is-every char=
@@ -255,7 +255,7 @@
 
 ;;;; Random Characters
 
-(test random-character-<
+(test-optimize random-character-<
   "Test `<` on random characters."
 
   (for-all ((a (gen-character))
@@ -264,7 +264,7 @@
     (is (eq (cl:char< a b)
             (< a b)))))
 
-(test random-character->
+(test-optimize random-character->
   "Test `>` on random characters."
 
   (for-all ((a (gen-character))
@@ -273,7 +273,7 @@
     (is (eq (cl:char> a b)
             (> a b)))))
 
-(test random-character-<=
+(test-optimize random-character-<=
   "Test `<=` on random character."
 
   (for-all ((a (gen-character))
@@ -282,7 +282,7 @@
     (is (eq (cl:char<= a b)
             (<= a b)))))
 
-(test random-character->=
+(test-optimize random-character->=
   "Test `>=` on random character."
 
   (for-all ((a (gen-character))
@@ -294,7 +294,7 @@
 
 ;;;; Strings
 
-(test string-<
+(test-optimize string-<
   "Test `<` on strings"
 
   (is (< "aaa" "aab"))
@@ -309,7 +309,7 @@
   (is (not (< (make-string 3 :initial-element #\f) "eeef")))
   (is (not (< (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu"))))
 
-(test string->
+(test-optimize string->
   "Test `>` on strings"
 
   (is (> "aax" "aaa"))
@@ -324,7 +324,7 @@
   (is (not (> "eeef" (make-string 3 :initial-element #\f))))
   (is (not (> "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))))
 
-(test string-<=
+(test-optimize string-<=
   "Test `<=` on strings"
 
   (is (<= "aaa" "aab"))
@@ -338,7 +338,7 @@
   (is (not (<= (make-string 3 :initial-element #\e) "aaa")))
   (is (not (<= (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu"))))
 
-(test string->=
+(test-optimize string->=
   "Test `>=` on strings"
 
   (is (>= "aab" "aaa"))
@@ -351,7 +351,7 @@
   (is (not (>= "aaa" (make-string 3 :initial-element #\e))))
   (is (not (>= "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))))
 
-(test string-min
+(test-optimize string-min
   "Test MIN on strings"
 
   (is-every string=
@@ -362,7 +362,7 @@
     ("aaa" (min "abc" (make-string 3 :initial-element #\a)))
     ("def" (min "def" (make-array 4 :element-type 'character :initial-contents '(#\d #\e #\f #\g))))))
 
-(test string-max
+(test-optimize string-max
   "Test MAX on strings"
 
   (is-every string=
@@ -376,7 +376,7 @@
 
 ;;;; Random Strings
 
-(test random-string-<
+(test-optimize random-string-<
   "Test `<` on random strings."
 
   (for-all ((a (gen-string))
@@ -386,7 +386,7 @@
          (xor (string< a b)
               (< a b))))))
 
-(test random-string->
+(test-optimize random-string->
   "Test `>` on random strings."
 
   (for-all ((a (gen-string))
@@ -396,7 +396,7 @@
          (xor (string> a b)
               (> a b))))))
 
-(test random-string-<
+(test-optimize random-string-<
   "Test `<=` on random strings."
 
   (for-all ((a (gen-string))
@@ -406,7 +406,7 @@
          (xor (string<= a b)
               (<= a b))))))
 
-(test random-string->=
+(test-optimize random-string->=
   "Test `>=` on random strings."
 
   (for-all ((a (gen-string))

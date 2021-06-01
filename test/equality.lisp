@@ -26,7 +26,7 @@
 
 ;;;; Numbers
 
-(test number-=
+(test-optimize number-=
   "Test `=` on numbers"
 
   (is (= 1 1))
@@ -40,7 +40,7 @@
   (is (= 1 1.0 2/2))
   (is (not (= 1 1 3))))
 
-(test number-/=
+(test-optimize number-/=
   "Test `/=` on numbers"
 
   (is (/= 1 0))
@@ -49,7 +49,7 @@
   (is (/= 1 1 3))
   (is (not (/= 1 1.0 2/2))))
 
-(test random-number-=
+(test-optimize random-number-=
   "Test `=` on random numbers"
 
   (for-all ((a (gen-integer))
@@ -60,7 +60,7 @@
 
     (is (eq (= b a) (= a b)))))
 
-(test random-number-/=
+(test-optimize random-number-/=
   "Test `/=` on random numbers"
 
   (for-all ((a (gen-integer))
@@ -74,7 +74,7 @@
 
 ;;;; Characters
 
-(test character-=
+(test-optimize character-=
   "Test `=` on characters"
 
   (is (= #\a #\a))
@@ -89,7 +89,7 @@
   (is (= #\a #\a #\a))
   (is (not (= #\a #\A 'a))))
 
-(test random-character-=
+(test-optimize random-character-=
   "Test `=` on random characters"
 
   (for-all ((a (gen-character))
@@ -100,7 +100,7 @@
 
     (is (eq (= b a) (= a b)))))
 
-(test character-/=
+(test-optimize character-/=
   "Test `/=` on characters"
 
   (is (/= #\a #\A))
@@ -113,7 +113,7 @@
   (is (not (/= #\b (char (make-string 5 :initial-element #\b) 3))))
   (is (not (/= #\y (aref (make-array 3 :element-type 'character :initial-contents '(#\x #\y #\z)) 1)))))
 
-(test random-character-/=
+(test-optimize random-character-/=
   "Test `/=` on random characters"
 
   (for-all ((a (gen-character))
@@ -127,7 +127,7 @@
 
 ;;;; Conses/Lists
 
-(test cons-=
+(test-optimize cons-=
   "Test `=` on lists and cons"
 
   (is (= '(1 2 3) (list 1.0 2 3.0)))
@@ -142,7 +142,7 @@
   (is (not (= '(1 2 3) '(1 2 1))))
   (is (not (= '(1 2 3) '(1 2)))))
 
-(test cons-/=
+(test-optimize cons-/=
   "Test `/=` on lists and cons"
 
   (is (not (/= '(1 2 3) (list 1.0 2 3.0))))
@@ -159,7 +159,7 @@
 
 ;;; Single-dimensional Arrays (Vector)
 
-(test vector-=
+(test-optimize vector-=
   "Test `=` on single dimensional arrays (vectors)"
 
   (is (= #(1 2 3) (vector 1 2 3)))
@@ -179,7 +179,7 @@
   (is (not (= #(1 2 3) (make-array '(2 2) :initial-contents '((1 2) (3 4))))))
   (is (not (= #(#(1 2)) #(#(2 1))))))
 
-(test vector-/=
+(test-optimize vector-/=
   "Test `/=` on single dimensional arrays (vectors)"
 
   (is (not (/= #(1 2 3) (vector 1 2 3))))
@@ -202,7 +202,7 @@
 
 ;;; Multi-dimensional Arrays
 
-(test nd-array-=
+(test-optimize nd-array-=
   "Test `=` on multi-dimensional arrays"
 
   (is (= #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6)))))
@@ -211,7 +211,7 @@
   (is (not (= #2A((1 2) (3 4)) #2A((1 1) (3 4)))))
   (is (not (= #2A((1 2) (3 4)) #(1 2 3 4)))))
 
-(test nd-array-/=
+(test-optimize nd-array-/=
   "Test `/=` on multi-dimensional arrays"
 
   (is (not (/= #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))))
@@ -223,7 +223,7 @@
 
 ;;; Strings
 
-(test string-=
+(test-optimize string-=
   "Test `=` on strings"
 
   (is (= "Hello" "Hello"))
@@ -237,7 +237,7 @@
   (is (not (= "aaa" (make-string 3 :initial-element #\A))))
   (is (not (= "cba" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c))))))
 
-(test random-string-=
+(test-optimize random-string-=
   "Test `=` on random strings"
 
   (for-all ((s1 (gen-string))
@@ -247,7 +247,7 @@
          (xor (string= s1 s2)
               (= s1 s2))))))
 
-(test string-/=
+(test-optimize string-/=
   "Test `/=` on strings"
 
   (is (not (/= "Hello" "Hello")))
@@ -262,7 +262,7 @@
   (is (/= "aaa" (make-string 3 :initial-element #\A)))
   (is (/= "cba" (make-array 3 :element-type 'character :initial-contents '(#\a #\b #\c)))))
 
-(test random-string-/=
+(test-optimize random-string-/=
   "Test `/=` on random strings"
 
   (for-all ((s1 (gen-string))
@@ -274,7 +274,7 @@
 
 ;;; Hash-Tables
 
-(test hash-table-=
+(test-optimize hash-table-=
   "Test `=` on hash-tables"
 
   (let ((table (make-hash-table :test #'equal)))
@@ -309,7 +309,7 @@
 
 ;;; Symbols
 
-(test symbol-=
+(test-optimize symbol-=
   "Test `=` on symbols"
 
   (is (= 'a 'a))
@@ -323,7 +323,7 @@
   (is (not (= 'a :a)))
   (is (not (= 'a '#:a))))
 
-(test symbol-/=
+(test-optimize symbol-/=
   "Test `/=` on symbols"
 
   (is (not (/= 'a 'a)))
@@ -340,7 +340,7 @@
 
 ;;; Different Types
 #||
-(test different-types-=
+(test-optimize different-types-=
   "Test `=` on non-compatible types"
 
   (is (not (= 1 'x)))
@@ -353,7 +353,7 @@
   (is (not (= '(1 2 3) '(1 2 . 3))))
   (is (not (= "hello" '|hello|))))
 
-(test different-types-/=
+(test-optimize different-types-/=
   "Test `/=` on non-compatible types"
 
   (is (/= 1 "1" #\1))

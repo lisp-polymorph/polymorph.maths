@@ -23,7 +23,7 @@
 
 ;;; Numbers
 
-(test number-+
+(test-optimize number-+
   "Test `+` on numbers."
 
   (is (= 3 (+ 1 2)))
@@ -31,7 +31,7 @@
   (is (= 2 (+ 2)))
   (is (= 10 (+ 1 2 3 4))))
 
-(test number--
+(test-optimize number--
   "Test `-` on numbers."
 
   (is (= -1 (- 3 4)))
@@ -39,7 +39,7 @@
   (is (= -4 (- 4)))
   (is (= -2 (- 5 4 3))))
 
-(test number-*
+(test-optimize number-*
   "Test `*` on numbers."
 
   (is (= 8 (* 2 4)))
@@ -47,7 +47,7 @@
   (is (= 3 (* 3)))
   (is (= 120 (* 2 3 4 5))))
 
-(test number-/
+(test-optimize number-/
   "Test `/` on numbers."
 
   (is (= 2 (/ 6 3)))
@@ -57,7 +57,7 @@
 
 ;;;; Random Input
 
-(test random-number-+
+(test-optimize random-number-+
   "Test `+` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -66,7 +66,7 @@
     (is (= (cl:+ a b) (+ a b)))
     (is (= (+ a b) (+ b a)))))
 
-(test random-number--
+(test-optimize random-number--
   "Test `-` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -75,7 +75,7 @@
     (is (= (cl:- a b) (- a b)))
     (is (= (- a b) (- (- b a))))))
 
-(test random-number-*
+(test-optimize random-number-*
   "Test `*` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -84,7 +84,7 @@
     (is (= (cl:* a b) (* a b)))
     (is (= (* a b) (* b a)))))
 
-(test random-number-/
+(test-optimize random-number-/
   "Test `/` on random numbers."
 
   (for-all ((a (gen-integer))
@@ -95,7 +95,7 @@
 
 ;;; Characters
 
-(test character-+
+(test-optimize character-+
   "Test `+` on characters."
 
   (is (char=
@@ -136,7 +136,7 @@
        (+ (code-char #x95)
           (code-char #x101)))))
 
-(test character--
+(test-optimize character--
   "Test `-` on characters."
 
   (is (char=
@@ -178,14 +178,14 @@
 
 ;;; Different Types
 
-(test different-types-+
+(test-optimize different-types-+
   "Test that `+` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (+ 1 'x))
   (signals no-applicable-polymorph (+ 1 #\c))
   (signals no-applicable-polymorph (+ "a" "b")))
 
-(test different-types--
+(test-optimize different-types--
   "Test that `-` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (- 3 "z"))
@@ -193,14 +193,14 @@
   (signals no-applicable-polymorph (- "a" "b"))
   (signals no-applicable-polymorph (- 'x)))
 
-(test different-types-*
+(test-optimize different-types-*
   "Test that `*` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (* 4 #\a))
   (signals no-applicable-polymorph (* 10 'x10))
   (signals no-applicable-polymorph (* "5" "6")))
 
-(test different-types-/
+(test-optimize different-types-/
   "Test that `/` signals condition on arguments of different types."
 
   (signals no-applicable-polymorph (/ 'a 'b))
@@ -210,7 +210,7 @@
 
 ;;; INCF, DECF, MULTF and DIVF
 
-(test number-incf
+(test-optimize number-incf
   "Test INCF on numbers"
 
   (let ((x 2))
@@ -220,7 +220,7 @@
     (is (= 7 (incf x 4)))
     (is (= 7 x))))
 
-(test number-decf
+(test-optimize number-decf
   "Test DECF on numbers"
 
   (let ((x 6))
@@ -230,7 +230,7 @@
     (is (= 2 (decf x 3)))
     (is (= 2 x))))
 
-(test number-multf
+(test-optimize number-multf
   "Test MULTF on numbers"
 
   (let ((num 11))
@@ -240,7 +240,7 @@
     (is (= 22 (multf num 2)))
     (is (= 22 num))))
 
-(test number-divf
+(test-optimize number-divf
   "Test DIVF on numbers"
 
   (let ((num 55))
