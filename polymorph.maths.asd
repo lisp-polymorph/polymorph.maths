@@ -8,8 +8,8 @@
     :serial t
     :depends-on (#:compiler-macro
                  #:trivial-form-ctype
-                 #:polymorph.utility
-                 #:introspect-ctype)
+                 #:introspect-ctype
+                 #:polymorphic-functions)
 
     :components ((:module
                   "src"

@@ -4,7 +4,6 @@
   (:use #:cl
         #:polymorphic-functions
         #:alexandria
-        #:polymorph.utility
         #:introspect-ctype)
 
   (:local-nicknames (:cm :sandalphon.compiler-macro)
