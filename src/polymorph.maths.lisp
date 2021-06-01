@@ -180,7 +180,7 @@
                                                      &environment env)
 
   (if (constantp (length args) env)
-      (let ((types (mapcar (lambda (x) (%form-type x env))
+      (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
             `(cl:= ,first ,second ,third ,@args)
@@ -287,7 +287,7 @@
                                                      &environment env)
 
   (if (constantp (length args) env)
-      (let ((types (mapcar (lambda (x) (%form-type x env))
+      (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
             `(cl:< ,first ,second ,third ,@args)
@@ -331,7 +331,7 @@
                                                      &environment env)
 
   (if (constantp (length args) env)
-      (let ((types (mapcar (lambda (x) (%form-type x env))
+      (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
             `(cl:<= ,first ,second ,third ,@args)
@@ -381,7 +381,7 @@
                                                      &environment env)
 
   (if (constantp (length args) env)
-      (let ((types (mapcar (lambda (x) (%form-type x env))
+      (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
             `(cl:> ,first ,second ,third ,@args)
@@ -426,7 +426,7 @@
                                                      &environment env)
 
   (if (constantp (length args) env)
-      (let ((types (mapcar (lambda (x) (%form-type x env))
+      (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
                            (cons first (cons second (cons third args))))))
         (if (every (lambda (typename) (subtypep typename 'number env)) types)
             `(cl:>= ,first ,second ,third ,@args)
@@ -470,24 +470,24 @@
   (if (not (< second first)) first second))
 
 (defpolymorph-compiler-macro max (t t) (first second &environment env)
-  (let ((type1 (%form-type first env))
-        (type2 (%form-type second env))
-        (name1 (gensym "FIRST"))
-        (name2 (gensym "SECOND")))
-    `(let ((,name1 ,first)
-           (,name2 ,second))
-       (declare (type ,type1 ,name1) (type ,type2 ,name2))
-       (if (< ,name1 ,name2) ,name2 ,name1))))
+  (with-type-info (type1 () env) first
+    (with-type-info (type2 () env) second
+      (let ((name1 (gensym "FIRST"))
+            (name2 (gensym "SECOND")))
+        `(let ((,name1 ,first)
+               (,name2 ,second))
+           (declare (type ,type1 ,name1) (type ,type2 ,name2))
+           (if (< ,name1 ,name2) ,name2 ,name1))))))
 
 (defpolymorph-compiler-macro min (t t) (first second &environment env)
-  (let ((type1 (%form-type first env))
-        (type2 (%form-type second env))
-        (name1 (gensym "FIRST"))
-        (name2 (gensym "SECOND")))
-    `(let ((,name1 ,first)
-           (,name2 ,second))
-       (declare (type ,type1 ,name1) (type ,type2 ,name2))
-       (if (not (< ,name2 ,name1)) ,name1 ,name2))))
+  (with-type-info (type1 () env) first
+    (with-type-info (type2 () env) second
+     (let ((name1 (gensym "FIRST"))
+           (name2 (gensym "SECOND")))
+       `(let ((,name1 ,first)
+              (,name2 ,second))
+          (declare (type ,type1 ,name1) (type ,type2 ,name2))
+          (if (not (< ,name2 ,name1)) ,name1 ,name2))))))
 
 
 (defpolymorph (max :inline t) ((first t) (second t) (third t) &rest xs) t

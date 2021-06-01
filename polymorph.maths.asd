@@ -6,8 +6,11 @@
     :license  "MIT"
     :version "1.0"
     :serial t
-    :depends-on (#:compiler-macro #:trivial-form-ctype
-                                  #:polymorph.utility)
+    :depends-on (#:compiler-macro
+                 #:trivial-form-ctype
+                 #:polymorph.utility
+                 #:introspect-ctype)
+
     :components ((:module
                   "src"
                   :serial t
