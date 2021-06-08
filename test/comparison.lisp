@@ -30,68 +30,68 @@
 (test-optimize number-<
   "Test `<` on numbers"
 
-  (is (< 1 2))
-  (is (< 3.11 10))
-  (is (< -1 0.5))
+  (is-true (< 1 2))
+  (is-true (< 3.11 10))
+  (is-true (< -1 0.5))
 
-  (is (< 1))
-  (is (< -1))
-  (is (< 3 4))
-  (is (< 3 4 5))
-  (is (< 2 3 4 5 6))
+  (is-true (< 1))
+  (is-true (< -1))
+  (is-true (< 3 4))
+  (is-true (< 3 4 5))
+  (is-true (< 2 3 4 5 6))
 
-  (is (not (< 5 2)))
-  (is (not (< 10 2.4)))
-  (is (not (< 0.3 -3)))
-  (is (not (< 2 3 5 4 6))))
+  (is-false (< 5 2))
+  (is-false (< 10 2.4))
+  (is-false (< 0.3 -3))
+  (is-false (< 2 3 5 4 6)))
 
 (test-optimize number->
   "Test `>` on numbers"
 
-  (is (> 9 3))
-  (is (> 12 5.3))
-  (is (> 1/3 -4))
+  (is-true (> 9 3))
+  (is-true (> 12 5.3))
+  (is-true (> 1/3 -4))
 
-  (is (> 2))
-  (is (> -3))
-  (is (> 5 3))
-  (is (> 5 4 3))
-  (is (> 5 4 3 2 1))
+  (is-true (> 2))
+  (is-true (> -3))
+  (is-true (> 5 3))
+  (is-true (> 5 4 3))
+  (is-true (> 5 4 3 2 1))
 
-  (is (not (> 3 7)))
-  (is (not (> 2.6 10)))
-  (is (not (> -8 1/6)))
-  (is (not (> 5 4 1 2 3))))
+  (is-false (> 3 7))
+  (is-false (> 2.6 10))
+  (is-false (> -8 1/6))
+  (is-false (> 5 4 1 2 3)))
 
 (test-optimize number-<=
   "Test `<=` on numbers"
 
-  (is (<= 2 7))
-  (is (<= 7 7))
-  (is (<= 1))
-  (is (<= -1))
-  (is (<= 1 1))
-  (is (<= 1 2))
-  (is (<= 1 2 3))
-  (is (<= 1 2 3 4))
+  (is-true (<= 2 7))
+  (is-true (<= 7 7))
+  (is-true (<= 1))
+  (is-true (<= -1))
+  (is-true (<= 1 1))
+  (is-true (<= 1 2))
+  (is-true (<= 1 2 3))
+  (is-true (<= 1 2 3 4))
 
-  (is (not (<= 9 8)))
-  (is (not (<= 1 2 4 3))))
+  (is-false (<= 9 8))
+  (is-false (<= 1 2 4 3)))
 
 (test-optimize number->=
   "Test `>=` on numbers"
 
-  (is (>= 10 5))
-  (is (>= 10 10))
-  (is (>= 4))
-  (is (>= -4))
-  (is (>= 2 2))
-  (is (>= 3 2))
-  (is (>= 3 2 1))
-  (is (>= 3 3 2 1))
+  (is-true (>= 10 5))
+  (is-true (>= 10 10))
+  (is-true (>= 4))
+  (is-true (>= -4))
+  (is-true (>= 2 2))
+  (is-true (>= 3 2))
+  (is-true (>= 3 2 1))
+  (is-true (>= 3 3 2 1))
 
-  (is (not (>= 0 90)))
-  (is (not (>= 3 4 2 1))))
+  (is-false (>= 0 90))
+  (is-false (>= 3 4 2 1)))
 
 (test-optimize number-min
   "Test MIN on numbers"
@@ -172,66 +172,66 @@
 (test-optimize character-<
   "Test `<` on characters"
 
-  (is (< #\a #\b))
-  (is (< #\1 #\7))
-  (is (< (char (make-string 10 :initial-element #\d) 4) #\x))
-  (is (< (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
-         #\d))
-  (is (< #\a #\b #\c))
+  (is-true (< #\a #\b))
+  (is-true (< #\1 #\7))
+  (is-true (< (char (make-string 10 :initial-element #\d) 4) #\x))
+  (is-true (< (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
+              #\d))
+  (is-true (< #\a #\b #\c))
 
-  (is (not (< #\Z #\T)))
-  (is (not (< #\6 #\5)))
-  (is (not (< (char (make-string 10 :initial-element #\d) 4) #\a)))
-  (is (not (< (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 3)
-              #\d)))
-  (is (not (< #\c #\d #\a))))
+  (is-false (< #\Z #\T))
+  (is-false (< #\6 #\5))
+  (is-false (< (char (make-string 10 :initial-element #\d) 4) #\a))
+  (is-false (< (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 3)
+               #\d))
+  (is-false (< #\c #\d #\a)))
 
 (test-optimize character->
   "Test `>` on characters"
 
-  (is (> #\x #\d))
-  (is (> #\4 #\1))
-  (is (> (char (make-string 10 :initial-element #\d) 4) #\c))
-  (is (> (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
-         #\b))
-  (is (> #\3 #\2 #\1))
+  (is-true (> #\x #\d))
+  (is-true (> #\4 #\1))
+  (is-true (> (char (make-string 10 :initial-element #\d) 4) #\c))
+  (is-true (> (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
+              #\b))
+  (is-true (> #\3 #\2 #\1))
 
-  (is (not (> #\A #\F)))
-  (is (not (> #\0 #\5)))
-  (is (not (> (char (make-string 10 :initial-element #\d) 4) #\x)))
-  (is (not (> (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
-              #\c)))
-  (is (not (> #\d #\c #\x))))
+  (is-false (> #\A #\F))
+  (is-false (> #\0 #\5))
+  (is-false (> (char (make-string 10 :initial-element #\d) 4) #\x))
+  (is-false (> (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
+               #\c))
+  (is-false (> #\d #\c #\x)))
 
 (test-optimize character-<=
   "Test `<=` on characters"
 
-  (is (<= #\a #\z))
-  (is (<= #\c #\c))
-  (is (<= (char (make-string 3 :initial-element #\e) 0) #\f))
-  (is (<= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
-          #\c))
+  (is-true (<= #\a #\z))
+  (is-true (<= #\c #\c))
+  (is-true (<= (char (make-string 3 :initial-element #\e) 0) #\f))
+  (is-true (<= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 2)
+               #\c))
 
-  (is (not (<= #\x #\f)))
-  (is (not (<= (char (make-string 3 :initial-element #\e) 0) #\c)))
-  (is (not (<= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 3)
-               #\c)))
-  (is (not (<= #\x #\x #\g))))
+  (is-false (<= #\x #\f))
+  (is-false (<= (char (make-string 3 :initial-element #\e) 0) #\c))
+  (is-false (<= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 3)
+                #\c))
+  (is-false (<= #\x #\x #\g)))
 
 (test-optimize character->=
   "Test `>=` on characters"
 
-  (is (>= #\x #\f))
-  (is (>= #\r #\r))
-  (is (>= (char (make-string 10 :initial-element #\d) 4) #\c))
-  (is (>= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 1)
-          #\b))
+  (is-true (>= #\x #\f))
+  (is-true (>= #\r #\r))
+  (is-true (>= (char (make-string 10 :initial-element #\d) 4) #\c))
+  (is-true (>= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 1)
+               #\b))
 
-  (is (not (>= #\b #\f)))
-  (is (not (>= (char (make-string 10 :initial-element #\d) 4) #\t)))
-  (is (not (>= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 1)
-               #\c)))
-  (is (not (>= #\x #\g #\h))))
+  (is-false (>= #\b #\f))
+  (is-false (>= (char (make-string 10 :initial-element #\d) 4) #\t))
+  (is-false (>= (aref (make-array 4 :element-type 'character :initial-contents '(#\a #\b #\c #\d)) 1)
+                #\c))
+  (is-false (>= #\x #\g #\h)))
 
 (test-optimize character-min
   "Test MIN on characters"
@@ -297,59 +297,59 @@
 (test-optimize string-<
   "Test `<` on strings"
 
-  (is (< "aaa" "aab"))
-  (is (< "hello" "hello world"))
-  (is (< "hello1" "hello2"))
-  (is (< (make-string 3 :initial-element #\e) "eeef"))
-  (is (< (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tux"))
+  (is-true (< "aaa" "aab"))
+  (is-true (< "hello" "hello world"))
+  (is-true (< "hello1" "hello2"))
+  (is-true (< (make-string 3 :initial-element #\e) "eeef"))
+  (is-true (< (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tux"))
 
-  (is (not (< "aax" "aaa")))
-  (is (not (< "hello world" "hello")))
-  (is (not (< "hello2" "hello1")))
-  (is (not (< (make-string 3 :initial-element #\f) "eeef")))
-  (is (not (< (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu"))))
+  (is-false (< "aax" "aaa"))
+  (is-false (< "hello world" "hello"))
+  (is-false (< "hello2" "hello1"))
+  (is-false (< (make-string 3 :initial-element #\f) "eeef"))
+  (is-false (< (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu")))
 
 (test-optimize string->
   "Test `>` on strings"
 
-  (is (> "aax" "aaa"))
-  (is (> "hello world" "hello"))
-  (is (> "hello3" "hello1"))
-  (is (> "eeef" (make-string 3 :initial-element #\e)))
-  (is (> "tux" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))
+  (is-true (> "aax" "aaa"))
+  (is-true (> "hello world" "hello"))
+  (is-true (> "hello3" "hello1"))
+  (is-true (> "eeef" (make-string 3 :initial-element #\e)))
+  (is-true (> "tux" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))
 
-  (is (not (> "aaa" "aab")))
-  (is (not (> "hello" "hello world")))
-  (is (not (> "hello1" "hello2")))
-  (is (not (> "eeef" (make-string 3 :initial-element #\f))))
-  (is (not (> "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))))
+  (is-false (> "aaa" "aab"))
+  (is-false (> "hello" "hello world"))
+  (is-false (> "hello1" "hello2"))
+  (is-false (> "eeef" (make-string 3 :initial-element #\f)))
+  (is-false (> "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)))))
 
 (test-optimize string-<=
   "Test `<=` on strings"
 
-  (is (<= "aaa" "aab"))
-  (is (<= "aaa" "aaa"))
-  (is (<= "abc" "abcd" "abce"))
-  (is (<= (make-string 3 :initial-element #\e) "eee"))
-  (is (<= (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tux"))
+  (is-true (<= "aaa" "aab"))
+  (is-true (<= "aaa" "aaa"))
+  (is-true (<= "abc" "abcd" "abce"))
+  (is-true (<= (make-string 3 :initial-element #\e) "eee"))
+  (is-true (<= (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tux"))
 
-  (is (not (<= "aab" "aaa")))
-  (is (not (<= "abc" "abcd" "abb")))
-  (is (not (<= (make-string 3 :initial-element #\e) "aaa")))
-  (is (not (<= (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu"))))
+  (is-false (<= "aab" "aaa"))
+  (is-false (<= "abc" "abcd" "abb"))
+  (is-false (<= (make-string 3 :initial-element #\e) "aaa"))
+  (is-false (<= (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)) "tuu")))
 
 (test-optimize string->=
   "Test `>=` on strings"
 
-  (is (>= "aab" "aaa"))
-  (is (>= "aaa" "aaa"))
-  (is (>= "eee" (make-string 3 :initial-element #\e)))
-  (is (>= "tux" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))
+  (is-true (>= "aab" "aaa"))
+  (is-true (>= "aaa" "aaa"))
+  (is-true (>= "eee" (make-string 3 :initial-element #\e)))
+  (is-true (>= "tux" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))
 
-  (is (not (>= "aaa" "aab")))
-  (is (not (>= "hello" "bye" "hello world")))
-  (is (not (>= "aaa" (make-string 3 :initial-element #\e))))
-  (is (not (>= "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v))))))
+  (is-false (>= "aaa" "aab"))
+  (is-false (>= "hello" "bye" "hello world"))
+  (is-false (>= "aaa" (make-string 3 :initial-element #\e)))
+  (is-false (>= "tuu" (make-array 3 :element-type 'character :initial-contents '(#\t #\u #\v)))))
 
 (test-optimize string-min
   "Test MIN on strings"
