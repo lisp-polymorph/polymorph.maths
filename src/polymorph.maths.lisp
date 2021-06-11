@@ -75,7 +75,7 @@
                      ;    (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
                          `(equal (array-dimensions ,first) (array-dimensions ,second))))
       (unless (equalp dim1 dim2)
-       (warn "Arrays dimensions are not known to be compatbile"))
+       (warn "Arrays dimensions are not known to be compatible."))
       (once-only (first second)
         `(and
           ,dim-check
