@@ -4,7 +4,7 @@
 (define-polymorphic-function = (&rest args))
 (define-polymorphic-function /= (&rest args))
 ```
-Equality as checking if all supplied objects are clones of each other. Recursive. Always return boolean. If only one object is supplied always return T. If objects of incomparable types are supplied default to nil, and if the incomparability of types is known at compile time signal a warning about it.
+Equality checks if all supplied objects are clones of each other. Recursive. Always returns boolean. If only one object is supplied always returns T. If objects of incomparable types are supplied defaults to nil, and if the incomparability of types is known at compile time signals a warning about it.
 
 ```common-lisp
 (define-polymorphic-function < (&rest args))
@@ -12,13 +12,13 @@ Equality as checking if all supplied objects are clones of each other. Recursive
 (define-polymorphic-function > (&rest args))
 (define-polymorphic-function >= (&rest args))
 ```
-Standart mathematical comparison. By default is defined by reals, chars and strings. Always return boolean. If only one object is supplied always return T. Supplying objects of incomparable types is an error.
+Standard mathematical comparison. By default is defined as reals, chars, and strings. Always returns boolean. If only one object is supplied always returns T. Supplying objects of incomparable types is an error.
 
 ```common-lisp
 (define-polymorphic-function min (first &rest args))
 (define-polymorphic-function max (first &rest args))
 ```
-Min and max, are based on < operator defined above.
+Min and max are based on < and > operator defined above.
 
 
 ```common-lisp
@@ -27,5 +27,5 @@ Min and max, are based on < operator defined above.
 d(define-polymorphic-function * (&rest args))
 efine-polymorphic-function / (x &rest args))
 ```
-Standart mathematical operations. Defined for numbers. + and - are also defined for chars. Always return object from the same domain. For numbers adhere to clhs documentation.
+Standard mathematical operations. Defined for numbers. + and - are also defined for chars. Always returns object from the same domain. For numbers adhere to clhs documentation.
 
