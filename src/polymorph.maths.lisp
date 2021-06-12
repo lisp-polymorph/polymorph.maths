@@ -60,28 +60,30 @@
              :always (= (row-major-aref first i)
                         (row-major-aref second i))))))
 
-(defpolymorph-compiler-macro = (array array) (first second &environment env)
- (with-array-info (elt1 dim1) first env
-  (with-array-info (elt2 dim2) second env
-    (let ((size1 (cond
-                   ;((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                   ; (reduce (lambda (a b) `(cl:* ,a ,b)) dim1)
-                   (t `(array-total-size ,first))))
-          (i (gensym))
-          (dim-check ;(if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
-                     ;       (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
-                     ;       (every (lambda (x) (numberp x)) dim1)
-                     ;       (every (lambda (x) (numberp x)) dim2)
-                     ;    (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
-                         `(equal (array-dimensions ,first) (array-dimensions ,second))))
-      (unless (equalp dim1 dim2)
-       (warn "Arrays dimensions are not known to be compatbile"))
-      (once-only (first second)
-        `(and
-          ,dim-check
-          (loop :for ,i :of-type ind :below ,size1
-                :always (= (the ,elt1 (row-major-aref ,first ,i))
-                           (the ,elt2 (row-major-aref ,second ,i))))))))))
+(defpolymorph-compiler-macro = (array array) (&whole form first second &environment env)
+  (with-type-info (type1 (typename1 &optional (elt1 '*) dim1) env) first
+    (with-type-info (type2 (typename2 &optional (elt2 '*) dim2) env) second
+      (when-types ((typename1 array) (typename2 array)) form
+
+        (let ((size1 (cond
+                                        ;((and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                                        ; (reduce (lambda (a b) `(cl:* ,a ,b)) dim1)
+                       (t `(array-total-size ,first))))
+              (i (gensym))
+              (dim-check ;(if (and (and (listp dim1) (every (lambda (x) (constantp x env)) dim1))
+                                        ;       (and (listp dim2) (every (lambda (x) (constantp x env)) dim2))
+                                        ;       (every (lambda (x) (numberp x)) dim1)
+                                        ;       (every (lambda (x) (numberp x)) dim2)
+                                        ;    (cl:= (reduce #'cl:* dim1) (reduce #'cl:* dim2))
+               `(equal (array-dimensions ,first) (array-dimensions ,second))))
+          (unless (equalp dim1 dim2)
+            (warn "Arrays dimensions are not known to be compatbile"))
+          (once-only (first second)
+            `(and
+              ,dim-check
+              (loop :for ,i :of-type ind :below ,size1
+                 :always (= (the ,elt1 (row-major-aref ,first ,i))
+                            (the ,elt2 (row-major-aref ,second ,i)))))))))))
 
 
 (defpolymorph (= :inline t) ((first (and vector (not simple-array)))
@@ -98,24 +100,26 @@
 
 (defpolymorph-compiler-macro = ((and vector (not simple-array))
                                 (and vector (not simple-array)))
-    (first second &environment env)
-  (with-array-info (elt1 dim1) first env
-    (with-array-info (elt2 dim2) second env
-     (let* ((s1 (gensym))
-            (s2 (gensym))
-            (i (gensym))
-            (check ;(if (and (constantp dim1 env) (constantp dim2 env))
-                   ;    `(= ,dim1 ,dim2)
-                       `(= ,s1 ,s2)))
-       (once-only (first second)
-         `(let ((,s1 (length ,first))
-                (,s2 (length ,second)))
-            (declare (ignorable ,s2))
-            (and ,check
-               (cl:= (fill-pointer ,first) (fill-pointer ,second))
-               (loop :for ,i :of-type ind :below ,s1
-                     :always (= (the ,elt1 (aref ,first ,i))
-                                (the ,elt2 (aref ,second ,i)))))))))))
+    (&whole form first second &environment env)
+
+  (with-type-info (type1 (typename1 &optional (elt1 '*)) env) first
+    (with-type-info (type2 (typename2 &optional (elt2 '*)) env) second
+      (when-types ((typename1 array) (typename2 array)) form
+        (let* ((s1 (gensym))
+               (s2 (gensym))
+               (i (gensym))
+               (check ;(if (and (constantp dim1 env) (constantp dim2 env))
+                                        ;    `(= ,dim1 ,dim2)
+                `(= ,s1 ,s2)))
+          (once-only (first second)
+            `(let ((,s1 (length ,first))
+                   (,s2 (length ,second)))
+               (declare (ignorable ,s2))
+               (and ,check
+                    (cl:= (fill-pointer ,first) (fill-pointer ,second))
+                    (loop :for ,i :of-type ind :below ,s1
+                       :always (= (the ,elt1 (aref ,first ,i))
+                                  (the ,elt2 (aref ,second ,i))))))))))))
 
 
 
