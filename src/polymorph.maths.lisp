@@ -61,8 +61,8 @@
                         (row-major-aref second i))))))
 
 (defpolymorph-compiler-macro = (array array) (&whole form first second &environment env)
-  (with-type-info (type1 (typename1 &optional (elt1 '*) dim1) env) first
-    (with-type-info (type2 (typename2 &optional (elt2 '*) dim2) env) second
+  (with-type-info (type1 (typename1 &optional (elt1 'cl:*) dim1) env) first
+    (with-type-info (type2 (typename2 &optional (elt2 'cl:*) dim2) env) second
       (when-types ((typename1 array) (typename2 array)) form
 
         (let ((size1 (cond
@@ -102,8 +102,8 @@
                                 (and vector (not simple-array)))
     (&whole form first second &environment env)
 
-  (with-type-info (type1 (typename1 &optional (elt1 '*)) env) first
-    (with-type-info (type2 (typename2 &optional (elt2 '*)) env) second
+  (with-type-info (type1 (typename1 &optional (elt1 'cl:*)) env) first
+    (with-type-info (type2 (typename2 &optional (elt2 'cl:*)) env) second
       (when-types ((typename1 array) (typename2 array)) form
         (let* ((s1 (gensym))
                (s2 (gensym))
