@@ -7,7 +7,6 @@
     :version "1.0"
     :serial t
     :depends-on (#:compiler-macro
-                 #:trivial-form-ctype
                  #:introspect-ctype
                  #:polymorphic-functions)
 
