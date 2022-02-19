@@ -86,8 +86,8 @@
                             (the ,elt2 (row-major-aref ,second ,i)))))))))))
 
 
-(defpolymorph (= :inline t) ((first (and vector (not simple-array)))
-                             (second (and vector (not simple-array))))
+(defpolymorph (= :inline t) ((first (and vector (not simple-array) (not string)))
+                             (second (and vector (not simple-array) (not string))))
     (values boolean &optional)
   (let ((s1 (length first))
         (s2 (length second)))
@@ -98,8 +98,8 @@
                         (aref second i))))))
 
 
-(defpolymorph-compiler-macro = ((and vector (not simple-array))
-                                (and vector (not simple-array)))
+(defpolymorph-compiler-macro = ((and vector (not simple-array) (not string))
+                                (and vector (not simple-array) (not string)))
     (&whole form first second &environment env)
 
   (with-type-info (type1 (typename1 &optional (elt1 'cl:*)) env) first
@@ -134,7 +134,14 @@
                    (and exists
                       (= v1 v2))))))
 
-
+#||
+(defpolymorph (= :inline t) ((first structure-object) (second structure-object))
+    (values boolean &optional)
+  (equalp first second))
+||#
+#||
+;; FIXME This is bad as well
+;; It should just be equalp
 (defpolymorph (= :inline t) ((first structure-object) (second structure-object))
     (values boolean &optional)
   (let* ((type1        (type-of first))
@@ -145,7 +152,6 @@
             :always (= (funcall (intern (format nil "~s-~s" type1 name)) first)
                        (funcall (intern (format nil "~s-~s" type2 name)) second))))))
 
-#||
 (defpolymorph-compiler-macro = (structure-object structure-object) ;; FIXME
     (first second &environment env)
   (let* ((type1        (%form-type first env))
@@ -652,3 +658,14 @@
 (define-modify-macro decf (&optional (num 1)) -)
 (define-modify-macro multf (&optional (num 1)) *)
 (define-modify-macro divf (&optional (num 1)) /)
+
+
+
+(defmacro case= (expr &body forms)
+  (let ((res (gensym "RESULT")))
+    `(let ((,res ,expr))
+       (cond ,@(loop :for (expected actions) :in forms
+                     :collect `((= ,res ,expected)
+                                ,actions))))))
+
+
