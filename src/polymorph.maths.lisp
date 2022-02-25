@@ -262,23 +262,23 @@
 
 
 
-(defpolymorph < ((first real) (second real)) (values boolean &optional)
-              (cL:< first second))
+(defpolymorph (< :inline t) ((first real) (second real)) (values boolean &optional)
+  (cL:< first second))
 
-(defpolymorph <= ((first real) (second real)) (values boolean &optional)
-              (cl:<= first second))
+(defpolymorph (<= :inline t) ((first real) (second real)) (values boolean &optional)
+  (cl:<= first second))
 
-(defpolymorph < ((first character) (second character)) (values boolean &optional)
-              (char< first second))
+(defpolymorph (< :inline t) ((first character) (second character)) (values boolean &optional)
+  (char< first second))
 
-(defpolymorph <= ((first character) (second character)) (values boolean &optional)
-              (char<= first second))
+(defpolymorph (<= :inline t) ((first character) (second character)) (values boolean &optional)
+  (char<= first second))
 
-(defpolymorph < ((first string) (second string)) (values boolean &optional)
-              (not (not (string< first second))))
+(defpolymorph (< :inline t) ((first string) (second string)) (values boolean &optional)
+  (not (not (string< first second))))
 
-(defpolymorph <= ((first string) (second string)) (values boolean &optional)
-              (not (not (string<= first second))))
+(defpolymorph (<= :inline t) ((first string) (second string)) (values boolean &optional)
+  (not (not (string<= first second))))
 
 (defpolymorph (< :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
