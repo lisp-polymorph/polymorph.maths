@@ -6,8 +6,7 @@
         #:alexandria
         #:introspect-ctype)
 
-  (:local-nicknames (:cm :sandalphon.compiler-macro)
-                    (:mop :closer-mop))
+  (:local-nicknames (:mop :closer-mop))
   (:shadow #:= #:/=
            #:< #:<= #:> #:>=
            #:max #:min

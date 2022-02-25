@@ -6,8 +6,7 @@
     :license  "MIT"
     :version "1.0"
     :serial t
-    :depends-on (#:compiler-macro
-                 #:introspect-ctype
+    :depends-on (#:introspect-ctype
                  #:polymorphic-functions)
 
     :components ((:module
