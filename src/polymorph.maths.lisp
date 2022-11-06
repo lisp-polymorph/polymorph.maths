@@ -658,14 +658,3 @@
 (define-modify-macro decf (&optional (num 1)) -)
 (define-modify-macro multf (&optional (num 1)) *)
 (define-modify-macro divf (&optional (num 1)) /)
-
-
-
-(defmacro case= (expr &body forms)
-  (let ((res (gensym "RESULT")))
-    `(let ((,res ,expr))
-       (cond ,@(loop :for (expected actions) :in forms
-                     :collect `((= ,res ,expected)
-                                ,actions))))))
-
-
