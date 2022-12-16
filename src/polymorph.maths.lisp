@@ -7,23 +7,27 @@
 
 ;; Equality
 (define-polymorphic-function = (object &rest objects) :overwrite t
-  :documentation "Return T if all of its arguments are , NIL otherwise.")
+  :documentation
+  "Return T if all of its arguments are equal, in a sense dictated by their type;
+NIL otherwise.")
 
 (define-polymorphic-function /= (object &rest objects) :overwrite t
-  :documentation "Return T if all of its arguments are , NIL otherwise.")
+  :documentation
+  "Inequality is defined as negation of [=][polymorphic-function].
+Meaning it is T when some of its arguments are not [=][polymorphic-function].")
 
 (defpolymorph (= :inline t) ((first t)) (eql t)
+  "Extend CL:= equality to a single argument of any type. Returns T in this case."
   (declare (ignorable first))
   t)
 
-
 (defpolymorph (/= :inline t) ((first t)) (eql t)
+  "Extend CL:/= inequality to a single argument of any type."
   (declare (ignorable first))
   t)
 
 (defpolymorph (= :inline t) ((first number) (second number)) (values boolean &optional)
   (cl:= first second))
-
 
 (defpolymorph (= :inline t) ((first symbol) (second symbol)) (values boolean &optional)
   (eql first second))
@@ -34,20 +38,19 @@
 (defpolymorph (= :inline t) ((first string) (second string)) (values boolean &optional)
   (string= first second))
 
-
 (defpolymorph (= :inline t) ((first cons) (second cons)) (values boolean &optional)
   (and (= (car first) (car second))
      (= (cdr first) (cdr second))))
 
 (defpolymorph (= :inline t) ((first cons) (second null)) (values boolean &optional)
+  "Non-empty and empty CONS (or NIL) are not equal."
   (declare (ignorable first second))
   nil)
 
 (defpolymorph (= :inline t) ((first null) (second cons)) (values boolean &optional)
+  "Empty lists (or NIL) and non-empty CONS are not equal."
   (declare (ignorable first second))
   nil)
-
-
 
 (defpolymorph (= :inline t) ((first array)
                              (second array))
@@ -181,10 +184,9 @@
 ||#
 
 (defpolymorph (= :inline t) ((first t) (second t) (third t) &rest args) (values boolean &optional)
+  "Reduce equality over multiple arguments."
   (cl:reduce (lambda (a b) (and a (= b first)))
              args :initial-value (and (= first second) (= second third))))
-
-
 
 (defpolymorph-compiler-macro = (t t t &rest) (&whole form first second third &rest args
                                                      &environment env)
@@ -218,8 +220,8 @@
       form))
 
 
-
 (defpolymorph (/= :inline t) ((first t)) (eql t)
+  "Extend CL:/= inequality to a single argument of any type. Returns T in this case."
   (declare (ignorable first))
   t)
 
@@ -237,29 +239,39 @@
       form))
 
 
-;; Inequality
+;; Order comparison functions
 (define-polymorphic-function < (object &rest objects) :overwrite t
   :documentation "Return T if its arguments are in strictly increasing order, NIL otherwise.")
+
 (define-polymorphic-function <= (object &rest objects) :overwrite t
   :documentation "Return T if arguments are in strictly non-decreasing order, NIL otherwise.")
+
 (define-polymorphic-function > (object &rest objects) :overwrite t
-  :documentation "Return T if its arguments are in strictly increasing order, NIL otherwise.")
+  :documentation "Return T if its arguments are in strictly decreasing order, NIL otherwise.
+Defined as negation of [POLYMORPH.MATHS:<=][polymorphic-function], therefore works for all the same argument types.
+By default those include REALs, CHARACTERs and STRINGs.")
+
 (define-polymorphic-function >= (object &rest objects) :overwrite t
-  :documentation "Return T if arguments are in strictly non-decreasing order, NIL otherwise.")
+  :documentation "Return T if arguments are in strictly non-increasing order, NIL otherwise.
+Defined as negation of [POLYMORPH.MATHS:<][polymorphic-function], therefore works for all the same argument types.
+By default those include REALs, CHARACTERs and STRINGs.")
+
 
 (defpolymorph (> :inline t) ((first t)) (eql t)
   (declare (ignorable first))
   t)
+
 (defpolymorph (>= :inline t) ((first t)) (eql t)
   (declare (ignorable first))
   t)
+
 (defpolymorph (< :inline t) ((first t)) (eql t)
   (declare (ignorable first))
   t)
+
 (defpolymorph (<= :inline t) ((first t)) (eql t)
   (declare (ignorable first))
   t)
-
 
 
 (defpolymorph (< :inline t) ((first real) (second real)) (values boolean &optional)
@@ -292,7 +304,6 @@
                        :always (< a b)))))))
 
 
-
 (defpolymorph-compiler-macro < (t t t &rest) (&whole form first second third &rest args
                                                      &environment env)
 
@@ -320,10 +331,9 @@
                      (not
                       (not
                        (and (< ,first ,second)
-                          (< ,second ,third)
-                          ,@(rec (cons third names) nil))))))))))
+                            (< ,second ,third)
+                            ,@(rec (cons third names) nil))))))))))
       form))
-
 
 
 (defpolymorph (<= :inline t) ((first t) (second t) (third t) &rest args)
@@ -338,7 +348,7 @@
                        :always (<= a b)))))))
 
 (defpolymorph-compiler-macro <= (t t t &rest) (&whole form first second third &rest args
-                                                     &environment env)
+                                                      &environment env)
 
   (if (constantp (length args) env)
       (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
@@ -364,13 +374,14 @@
                      (not
                       (not
                        (and (<= ,first ,second)
-                          (<= ,second ,third)
-                          ,@(rec (cons third names) nil))))))))))
+                            (<= ,second ,third)
+                            ,@(rec (cons third names) nil))))))))))
       form))
 
 
 (defpolymorph (> :inline t) ((first t) (second t)) (values boolean &optional)
   (not (<= first second)))
+
 (defpolymorph (>= :inline t) ((first t) (second t)) (values boolean &optional)
   (not (< first second)))
 
@@ -384,7 +395,6 @@
                  (loop :for (a b) :on (cons third args)
                        :while b
                        :always (> a b)))))))
-
 
 
 (defpolymorph-compiler-macro > (t t t &rest) (&whole form first second third &rest args
@@ -414,26 +424,25 @@
                      (not
                       (not
                        (and (> ,first ,second)
-                          (> ,second ,third)
-                          ,@(rec (cons third names) nil))))))))))
+                            (> ,second ,third)
+                            ,@(rec (cons third names) nil))))))))))
       form))
-
 
 
 (defpolymorph (>= :inline t) ((first t) (second t) (third t) &rest args)
     (values boolean &optional)
   (not
    (not (and (>= first second)
-         (>= second third)
-         (if (not args)
-             t
-             (loop :for (a b) :on (cons third args)
-                   :while b
-                   :always (>= a b)))))))
+             (>= second third)
+             (if (not args)
+                 t
+                 (loop :for (a b) :on (cons third args)
+                       :while b
+                       :always (>= a b)))))))
 
 
 (defpolymorph-compiler-macro >= (t t t &rest) (&whole form first second third &rest args
-                                                     &environment env)
+                                                      &environment env)
 
   (if (constantp (length args) env)
       (let ((types (mapcar (lambda (x) (with-type-info (type () env) x type))
@@ -459,25 +468,39 @@
                      (not
                       (not
                        (and (>= ,first ,second)
-                          (>= ,second ,third)
-                          ,@(rec (cons third names) nil))))))))))
+                            (>= ,second ,third)
+                            ,@(rec (cons third names) nil))))))))))
       form))
 
 
+(define-polymorphic-function max (&rest xs) :overwrite t
+  :documentation "Returns maximum of provided arguments.
+Comparison falls back to the [POLYMORPH.MATHS:<][polymorphic-function]
+polymorphic order function.")
 
-
-(define-polymorphic-function max (&rest xs) :overwrite t)
-(define-polymorphic-function min (&rest xs) :overwrite t)
+(define-polymorphic-function min (&rest xs) :overwrite t
+  :documentation "Returns minimum of provided arguments.
+Comparison falls back to the [POLYMORPH.MATHS:<][polymorphic-function]
+polymorphic order function.")
 
 (defpolymorph max ((a t)) t
+  "Obviously returns its single argument when only one is provided."
   a)
+
 (defpolymorph min ((a t)) t
+  "Obviously returns its single argument when only one is provided."
   a)
 
 (defpolymorph max ((first t) (second t)) t
+  "Returns maximum between FIRST and SECOND argument comparing with
+[POLYMORPH.MATHS:<][polymorphic-function]."
   (if (< first second) second first))
+  
 (defpolymorph min ((first t) (second t)) t
+  "Returns minimum between FIRST and SECOND argument comparing with
+[POLYMORPH.MATHS:<][polymorphic-function]."
   (if (not (< second first)) first second))
+
 
 (defpolymorph-compiler-macro max (t t) (first second &environment env)
   (with-type-info (type1 () env) first
@@ -488,6 +511,7 @@
                (,name2 ,second))
            (declare (type ,type1 ,name1) (type ,type2 ,name2))
            (if (< ,name1 ,name2) ,name2 ,name1))))))
+
 
 (defpolymorph-compiler-macro min (t t) (first second &environment env)
   (with-type-info (type1 () env) first
@@ -501,7 +525,9 @@
 
 
 (defpolymorph (max :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce MAX over multiple arguments."
   (cl:reduce #'max xs :initial-value (max first (max second third))))
+
 
 (defpolymorph-compiler-macro max (t t t &rest) (&whole form first second third &rest xs
                                                        &environment env)
@@ -522,8 +548,11 @@
           (genmax xs `(max ,first (max ,second ,third)))
           form))))
 
+
 (defpolymorph (min :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce MIN over multiple arguments."
   (cl:reduce #'min xs :initial-value (min first (min second third))))
+
 
 (defpolymorph-compiler-macro min (t t t &rest) (&whole form first second third &rest xs
                                                        &environment env)
@@ -545,25 +574,30 @@
           form))))
 
 
-
 ;; Arithmetics
-(define-polymorphic-function + (&rest xs) :overwrite t)
+(define-polymorphic-function + (&rest xs) :overwrite t
+  :documentation "Arithmetic addition.")
 
 (defpolymorph + () (eql 0)
+  "When called without arguments, '+ returns 0."
   0)
 
-
 (defpolymorph + ((a t)) t
+  "When called with only one argument A of any type, return A."
   a)
 
 (defpolymorph + ((first number) (second number)) (values number &optional)
+  "Two arguments of type NUMBER are added with CL:+ ."
   (cl:+ first second))
 
 (defpolymorph + ((first character) (second character)) (values character &optional)
+  "Addition of CHARACTER type arguments results in CHARACTER with the code as the sum if the arguments' codes."
   (code-char (cl:+ (char-code first) (char-code second))))
 
 (defpolymorph (+ :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce summation over multiple arguments."
   (cl:reduce #'+ xs :initial-value (+ (+ first second) third)))
+
 
 (defpolymorph-compiler-macro + (t t t &rest) (&whole form first second third &rest xs
                                                      &environment env)
@@ -575,20 +609,25 @@
        (gen+ xs `(+ (+ ,first ,second) ,third))
        form)))
 
-(define-polymorphic-function - (x &rest xs) :overwrite t)
+
+(define-polymorphic-function - (x &rest xs) :overwrite t
+  :documentation "Arithmetic subtraction.")
 
 (defpolymorph - ((a number)) (values number &optional)
+  "Unary negation for NUMBER A, same as CL:- ."
   (cl:- a))
 
 (defpolymorph - ((first number) (second number)) (values number &optional)
+  "Subtract NUMBER SECOND from NUMBER FIRST."
   (cl:- first second))
 
 (defpolymorph - ((first character) (second character)) (values character &optional)
+  "Subtraction of CHARACTER type arguments results in CHARACTER with the
+code as the subtraction of the CHARACTER SECOND from CHARACTER FIRST."
   (code-char (cl:- (char-code first) (char-code second))))
 
-
-
 (defpolymorph (- :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce subtraction over multiple arguments."
   (cl:reduce #'- xs :initial-value (- (- first second) third)))
 
 
@@ -602,18 +641,24 @@
        (gen- xs `(- (- ,first ,second) ,third))
        form)))
 
-(define-polymorphic-function * (&rest xs) :overwrite t)
+
+(define-polymorphic-function * (&rest xs) :overwrite t
+  :documentation "Arithmetic multiplication.")
 
 (defpolymorph * () (eql 1)
+  "When called without arguments, `'*` returns neutral element 1."
   1)
 
 (defpolymorph * ((a t)) t
+  "When called with only one argument A of any type, return A."
   a)
 
 (defpolymorph * ((first number) (second number)) (values number &optional)
+  "Multiply NUMBER FIRST and NUMBER SECOND."
   (cl:* first second))
 
 (defpolymorph (* :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce multiplication over multiple arguments."
   (cl:reduce #'* xs :initial-value (* (* first second) third)))
 
 
@@ -627,18 +672,21 @@
        (gen* xs `(* (* ,first ,second) ,third))
        form)))
 
-(define-polymorphic-function / (x &rest xs) :overwrite t)
+
+(define-polymorphic-function / (x &rest xs) :overwrite t
+  :documentation "Arithmetic division.")
 
 (defpolymorph / ((a number)) (values number &optional)
+  "Inverse of NUMBER A, same as CL:/ ."
   (cl:/ a))
 
 (defpolymorph / ((first number) (second number))
   (values number &optional)
+  "Divide NUMBER FIRST with NUMBER SECOND."
   (cl:/ first second))
 
-
-
 (defpolymorph (/ :inline t) ((first t) (second t) (third t) &rest xs) t
+  "Reduce division over multiple arguments."
   (cl:reduce #'/ xs :initial-value (/ (/ first second) third)))
 
 
@@ -653,8 +701,22 @@
        form)))
 
 
+(define-modify-macro incf (&optional (delta 1)) +
+  "Like CL:INCF, write a place with its value increased by DELTA.
+DELTA defaults to NUMBER 1 but can be any type for which the
+[POLYMORPH.MATHS:+][polymorphic-function] is defined.")
 
-(define-modify-macro incf (&optional (num 1)) +)
-(define-modify-macro decf (&optional (num 1)) -)
-(define-modify-macro multf (&optional (num 1)) *)
-(define-modify-macro divf (&optional (num 1)) /)
+
+(define-modify-macro decf (&optional (delta 1)) -
+  "Like CL:DECF, write a place with its value decreased by DELTA.
+DELTA defaults to NUMBER 1.")
+
+
+(define-modify-macro multf (&optional (delta 1)) *
+  "Write a place with its value multiplied by DELTA, which defaults to a
+NUMBER 1.")
+
+
+(define-modify-macro divf (&optional (delta 1)) /
+  "Write a place with its value divided by DELTA, which defaults to a
+NUMBER 1.")

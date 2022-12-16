@@ -220,6 +220,13 @@
     (is (= 7 (incf x 4)))
     (is (= 7 x))))
 
+(test-optimize char-incf
+ "Test INCF on characters"
+ (is
+  (char= (+ #\2 #\3)
+         (incf (car '(#\2)) #\3)
+         #\e)))
+
 (test-optimize number-decf
   "Test DECF on numbers"
 
