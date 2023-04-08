@@ -757,15 +757,3 @@ NUMBER 1."
                 (/ (the ,place-type ,access-expr) ,val)))
          (declare (type (and ,place-type ,val-type) ,(car stores)))
          ,store-expr))))
-
-
-(defmacro case= (expr &body forms)
-  (let ((res (gensym "RESULT")))
-    `(let ((,res ,expr))
-       (cond ,@(loop :for (expected actions) :in forms
-                     :collect (if (atom expected)
-                                  `((= ,res ,expected)
-                                    ,actions)
-                                  `((or ,@(loop :for ex :in expected
-                                                :collect `(= ,res ,ex)))
-                                    ,actions)))))))

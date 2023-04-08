@@ -7,8 +7,7 @@
     :version "1.0"
     :serial t
     :depends-on (#:introspect-ctype
-                 #:polymorphic-functions
-                 #:polymorph.macros)
+                 #:polymorphic-functions)
 
     :components ((:module
                   "src"
