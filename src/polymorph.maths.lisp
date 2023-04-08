@@ -702,7 +702,7 @@ code as the subtraction of the CHARACTER SECOND from CHARACTER FIRST."
 
 
 (defmacro incf (place &optional (val 1) &environment env)
-   "Like CL:INCF, write a place with its value increased by DELTA.
+  "Like CL:INCF, write a place with its value increased by DELTA.
 DELTA defaults to NUMBER 1 but can be any type for which the
 [POLYMORPH.MATHS:+][polymorphic-function] is defined."
   (multiple-value-bind
@@ -710,11 +710,14 @@ DELTA defaults to NUMBER 1 but can be any type for which the
       (get-setf-expansion place env)
     (let ((place-type (%form-type place env))
           (val-type (%form-type val env)))
-      `(let* (,@(mapcar #'list temps exprs)
-              (,(car stores)
-                (+ (the ,place-type ,access-expr) ,val)))
-         (declare (type (and ,place-type ,val-type) ,(car stores)))
-         ,store-expr))))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (+ ,access-expr ,val)))
+           (declare (type (and ,place-type ,val-type) ,(car stores)))
+           ,store-expr)))))
 
 (defmacro decf (place &optional (val 1) &environment env)
   "Like CL:DECF, write a place with its value decreased by DELTA.
@@ -724,36 +727,45 @@ DELTA defaults to NUMBER 1."
       (get-setf-expansion place env)
     (let ((place-type (%form-type place env))
           (val-type (%form-type val env)))
-      `(let* (,@(mapcar #'list temps exprs)
-              (,(car stores)
-                (- (the ,place-type ,access-expr) ,val)))
-         (declare (type (and ,place-type ,val-type) ,(car stores)))
-         ,store-expr))))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (- ,access-expr ,val)))
+           (declare (type (and ,place-type ,val-type) ,(car stores)))
+           ,store-expr)))))
 
 (defmacro multf (place &optional (val 1) &environment env)
-   "Write a place with its value multiplied by DELTA, which defaults to a
+  "Write a place with its value multiplied by DELTA, which defaults to a
 NUMBER 1."
   (multiple-value-bind
         (temps exprs stores store-expr access-expr)
       (get-setf-expansion place env)
     (let ((place-type (%form-type place env))
           (val-type (%form-type val env)))
-      `(let* (,@(mapcar #'list temps exprs)
-              (,(car stores)
-                (* (the ,place-type ,access-expr) ,val)))
-         (declare (type (and ,place-type ,val-type) ,(car stores)))
-         ,store-expr))))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (* ,access-expr ,val)))
+           (declare (type (and ,place-type ,val-type) ,(car stores)))
+           ,store-expr)))))
 
 (defmacro divf (place &optional (val 1) &environment env)
-   "Write a place with its value divided by DELTA, which defaults to a
+  "Write a place with its value divided by DELTA, which defaults to a
 NUMBER 1."
   (multiple-value-bind
         (temps exprs stores store-expr access-expr)
       (get-setf-expansion place env)
     (let ((place-type (%form-type place env))
           (val-type (%form-type val env)))
-      `(let* (,@(mapcar #'list temps exprs)
-              (,(car stores)
-                (/ (the ,place-type ,access-expr) ,val)))
-         (declare (type (and ,place-type ,val-type) ,(car stores)))
-         ,store-expr))))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (/ ,access-expr ,val)))
+           (declare (type (and ,place-type ,val-type) ,(car stores)))
+           ,store-expr)))))
