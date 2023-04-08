@@ -701,22 +701,62 @@ code as the subtraction of the CHARACTER SECOND from CHARACTER FIRST."
        form)))
 
 
-(define-modify-macro incf (&optional (delta 1)) +
-  "Like CL:INCF, write a place with its value increased by DELTA.
-DELTA defaults to NUMBER 1 but can be any type for which the
-[POLYMORPH.MATHS:+][polymorphic-function] is defined.")
+(defmacro incf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (+ (the ,place-type ,access-expr) ,val)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+(defmacro decf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (- (the ,place-type ,access-expr) ,val)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+(defmacro multf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (* (the ,place-type ,access-expr) ,val)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+(defmacro divf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (/ (the ,place-type ,access-expr) ,val)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
 
 
-(define-modify-macro decf (&optional (delta 1)) -
-  "Like CL:DECF, write a place with its value decreased by DELTA.
-DELTA defaults to NUMBER 1.")
-
-
-(define-modify-macro multf (&optional (delta 1)) *
-  "Write a place with its value multiplied by DELTA, which defaults to a
-NUMBER 1.")
-
-
-(define-modify-macro divf (&optional (delta 1)) /
-  "Write a place with its value divided by DELTA, which defaults to a
-NUMBER 1.")
+(defmacro case= (expr &body forms)
+  (let ((res (gensym "RESULT")))
+    `(let ((,res ,expr))
+       (cond ,@(loop :for (expected actions) :in forms
+                     :collect (if (atom expected)
+                                  `((= ,res ,expected)
+                                    ,actions)
+                                  `((or ,@(loop :for ex :in expected
+                                                :collect `(= ,res ,ex)))
+                                    ,actions)))))))
