@@ -653,8 +653,62 @@
        form)))
 
 
+(defmacro incf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (+ (the ,place-type ,access-expr) ,val)))
+         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
 
-(define-modify-macro incf (&optional (num 1)) +)
-(define-modify-macro decf (&optional (num 1)) -)
-(define-modify-macro multf (&optional (num 1)) *)
-(define-modify-macro divf (&optional (num 1)) /)
+(defmacro decf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (- (the ,place-type ,access-expr) ,val)))
+         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+(defmacro multf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (* (the ,place-type ,access-expr) ,val)))
+         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+(defmacro divf (place &optional (val 1) &environment env)
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env))
+          (val-type (%form-type val env)))
+      `(let* (,@(mapcar #'list temps exprs)
+              (,(car stores)
+                (/ (the ,place-type ,access-expr) ,val)))
+         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         ,store-expr))))
+
+
+(defmacro case= (expr &body forms)
+  (let ((res (gensym "RESULT")))
+    `(let ((,res ,expr))
+       (cond ,@(loop :for (expected actions) :in forms
+                     :collect (if (atom expected)
+                                  `((= ,res ,expected)
+                                    ,actions)
+                                  `((or ,@(loop :for ex :in expected
+                                                :collect `(= ,res ,ex)))
+                                    ,actions)))))))

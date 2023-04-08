@@ -3,6 +3,7 @@
 (defpackage #:polymorph.maths
   (:use #:cl
         #:polymorphic-functions
+        #:polymorph.macros
         #:alexandria
         #:introspect-ctype)
 
