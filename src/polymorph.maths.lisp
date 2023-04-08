@@ -662,7 +662,7 @@
       `(let* (,@(mapcar #'list temps exprs)
               (,(car stores)
                 (+ (the ,place-type ,access-expr) ,val)))
-         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
          ,store-expr))))
 
 (defmacro decf (place &optional (val 1) &environment env)
@@ -674,7 +674,7 @@
       `(let* (,@(mapcar #'list temps exprs)
               (,(car stores)
                 (- (the ,place-type ,access-expr) ,val)))
-         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
          ,store-expr))))
 
 (defmacro multf (place &optional (val 1) &environment env)
@@ -686,7 +686,7 @@
       `(let* (,@(mapcar #'list temps exprs)
               (,(car stores)
                 (* (the ,place-type ,access-expr) ,val)))
-         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
          ,store-expr))))
 
 (defmacro divf (place &optional (val 1) &environment env)
@@ -698,7 +698,7 @@
       `(let* (,@(mapcar #'list temps exprs)
               (,(car stores)
                 (/ (the ,place-type ,access-expr) ,val)))
-         (declare (type (or ,place-type ,val-type) ,(car stores)))
+         (declare (type (and ,place-type ,val-type) ,(car stores)))
          ,store-expr))))
 
 
