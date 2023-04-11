@@ -701,7 +701,7 @@ code as the subtraction of the CHARACTER SECOND from CHARACTER FIRST."
        form)))
 
 
-(defmacro incf (place &optional (val 1) &environment env)
+(defmacro incf (place &optional (delta 1) &environment env)
   "Like CL:INCF, write a place with its value increased by DELTA.
 DELTA defaults to NUMBER 1 but can be any type for which the
 [POLYMORPH.MATHS:+][polymorphic-function] is defined."
@@ -714,11 +714,11 @@ DELTA defaults to NUMBER 1 but can be any type for which the
                               `(type ,(%form-type expr env) ,name))
                             temps exprs))
          (let ((,(car stores)
-                 (+ ,access-expr ,val)))
+                 (+ ,access-expr ,delta)))
            (declare (type ,place-type ,(car stores)))
            ,store-expr)))))
 
-(defmacro decf (place &optional (val 1) &environment env)
+(defmacro decf (place &optional (delta 1) &environment env)
   "Like CL:DECF, write a place with its value decreased by DELTA.
 DELTA defaults to NUMBER 1."
   (multiple-value-bind
@@ -730,11 +730,11 @@ DELTA defaults to NUMBER 1."
                               `(type ,(%form-type expr env) ,name))
                             temps exprs))
          (let ((,(car stores)
-                 (- ,access-expr ,val)))
+                 (- ,access-expr ,delta)))
            (declare (type ,place-type ,(car stores)))
            ,store-expr)))))
 
-(defmacro multf (place &optional (val 1) &environment env)
+(defmacro multf (place &optional (delta 1) &environment env)
   "Write a place with its value multiplied by DELTA, which defaults to a
 NUMBER 1."
   (multiple-value-bind
@@ -746,12 +746,12 @@ NUMBER 1."
                               `(type ,(%form-type expr env) ,name))
                             temps exprs))
          (let ((,(car stores)
-                 (* ,access-expr ,val)))
+                 (* ,access-expr ,delta)))
            (declare (type ,place-type ,(car stores)))
            ,store-expr)))))
 
-(defmacro divf (place &optional (val 1) &environment env)
-  "Write a place with its value divided by DELTA, which defaults to a
+(defmacro divf (place &optional (delta 1) &environment env)
+  "Write a place with its value divided with / by DELTA, which defaults to a
 NUMBER 1."
   (multiple-value-bind
         (temps exprs stores store-expr access-expr)
@@ -762,6 +762,40 @@ NUMBER 1."
                               `(type ,(%form-type expr env) ,name))
                             temps exprs))
          (let ((,(car stores)
-                 (/ ,access-expr ,val)))
+                 (/ ,access-expr ,delta)))
+           (declare (type ,place-type ,(car stores)))
+           ,store-expr)))))
+
+
+(defmacro floorf (place &optional (delta 1) &environment env)
+  "Write a place with its value divided with FLOOR by DELTA, which defaults to a
+NUMBER 1."
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env)))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (floor ,access-expr ,delta)))
+           (declare (type ,place-type ,(car stores)))
+           ,store-expr)))))
+
+
+(defmacro truncf (place &optional (delta 1) &environment env)
+  "Write a place with its value divided with TRUNCATE by DELTA, which defaults to a
+NUMBER 1."
+  (multiple-value-bind
+        (temps exprs stores store-expr access-expr)
+      (get-setf-expansion place env)
+    (let ((place-type (%form-type place env)))
+      `(let* (,@(mapcar #'list temps exprs))
+         (declare ,@(mapcar (lambda (name expr)
+                              `(type ,(%form-type expr env) ,name))
+                            temps exprs))
+         (let ((,(car stores)
+                 (truncate ,access-expr ,delta)))
            (declare (type ,place-type ,(car stores)))
            ,store-expr)))))

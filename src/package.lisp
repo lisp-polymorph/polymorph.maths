@@ -16,4 +16,4 @@
            #:< #:<= #:> #:>=
            #:max #:min
            #:+ #:- #:* #:/
-           #:incf #:decf #:multf #:divf))
+           #:incf #:decf #:multf #:divf #:floorf #:truncf))
